@@ -36,7 +36,7 @@
           }
         ],
         "script": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
-        "author": "@creamk",
+        "author": "@CreamK",
         "repo": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
         "icons": [
           "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png",
@@ -95,12 +95,45 @@
           
         ],
         "script": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/glados.js",
-        "author": "@creamk",
+        "author": "@CreamK",
         "repo": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/glados.js",
         "icons": [
           "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg",
           "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg"
         ]
+      },
+
+      {
+        "id": "imaotai",
+        "name": "i茅台",
+        "keys": ["imaotai_province","imaotai_city","imaotai_token"],
+        "settings": [
+          {
+            "id": "imaotai_province",
+            "name": "报名省份",
+            "val": "",
+            "type": "text"
+          },
+          {
+            "id": "imaotai_city",
+            "name": "报名城市",
+            "val": "",
+            "type": "text"
+          },
+          {
+            "id": "maotai_token",
+            "name": "token",
+            "val": "",
+            "type": "text"
+          }
+        ],
+        "script": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
+        "author": "@CreamK",
+        "repo": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
+        "icons": [
+          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png",
+          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png"
+              ]
       }
       
       
