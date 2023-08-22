@@ -5,49 +5,6 @@
     "icon": "https://avatars.githubusercontent.com/u/51256470",
     "repo": "https://github.com/CreamK/Scripts",
     "apps": [
-      {
-        "id": "抢JD券",
-        "name": "通用重放抢券脚本",
-        "keys": ["jd_run_times","jd_run_start","jd_run_numbers","jd_quan_api"],
-        "settings": [
-          {
-            "id": "jd_run_times",
-            "name": "抢券次数",
-            "val": "",
-            "type": "number"
-          },
-          {
-            "id": "jd_run_start",
-            "name": "第一个账号",
-            "val": "",
-            "type": "number",
-            "desc": "填写第一个账号,从0开始"
-          },
-          {
-            "id": "jd_run_numbers",
-            "name": "运行账号数量",
-            "val": "",
-            "type": "number",
-            "desc": "第一个账号和运行账号之和小于boxjs内cookie数量"
-          },
-          {
-            "id": "jd_quan_api",
-            "name": "券的api",
-            "val": "",
-            "type": "textarea",
-            "autoGrow": true,
-            "rows": 2
-          }
-        ],
-        "script": "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/JD/jd_qx_quan.js",
-        "author": "@creamk",
-        "repo": "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/JD/jd_qx_quan.js",
-        "icons": [
-          "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_quan.jpg",
-          "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_quan.jpg"
-        ]
-      },
-  
      {
         "id": "xmSteps",
         "name": "小米步数",
@@ -78,51 +35,16 @@
             "type": "number"
           }
         ],
-        "script": "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
+        "script": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
         "author": "@creamk",
-        "repo": "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
+        "repo": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
         "icons": [
-          "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png",
-          "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png"
+          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png",
+          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png"
               ]
       },
       
-      
-      {
-        "id": "Upload_Wskey",
-        "name": "Wskey管理",
-        "keys": ["CreamK_TG_User_ID","CreamK_TG_Bot_Token","wskeyList"],
-        "settings": [
-          {
-            "id": "CreamK_TG_User_ID",
-            "name": "TG用户ID",
-            "val": "",
-            "type": "text"
-          },
-          {
-            "id": "CreamK_TG_Bot_Token",
-            "name": "TG接收通知Bot的Token",
-            "val": "",
-            "type": "text"
-          },
-          {
-            "id": "wskeyList",
-            "name": "wskeyList",
-            "val": "",
-            "type": "textarea",
-            "autoGrow": true,
-            "rows": 2 
-          }
-        ],
-        "script": "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/JD/uploadWskey.js",
-        "author": "@creamk",
-        "repo": "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/JD/uploadWskey.js",
-        "icons": [
-          "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg",
-          "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg"
-        ]
-      },
-      
+         
       {
         "id": "Glados",
         "name": "Glados签到",
@@ -172,12 +94,12 @@
           }
           
         ],
-        "script": "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/glados.js",
+        "script": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/glados.js",
         "author": "@creamk",
-        "repo": "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/glados.js",
+        "repo": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/glados.js",
         "icons": [
-          "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg",
-          "https://CreamK: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@raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg"
+          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg",
+          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg"
         ]
       }
       
