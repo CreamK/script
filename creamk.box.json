@@ -35,12 +35,12 @@
             "type": "number"
           }
         ],
-        "script": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
+        "script": "https://raw.githubusercontent.com/CreamK/script/xmbs.js",
         "author": "@CreamK",
-        "repo": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
+        "repo": "https://raw.githubusercontent.com/CreamK/script/xmbs.js",
         "icons": [
-          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png",
-          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png"
+          "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png",
+          "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png"
               ]
       },
       
@@ -94,12 +94,12 @@
           }
           
         ],
-        "script": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/glados.js",
+        "script": "https://raw.githubusercontent.com/CreamK/script/glados.js",
         "author": "@CreamK",
-        "repo": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/glados.js",
+        "repo": "https://raw.githubusercontent.com/CreamK/script/glados.js",
         "icons": [
-          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg",
-          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/jd_wskey.jpg"
+          "https://raw.githubusercontent.com/CreamK/script/master/icon/GLaDOS.ico",
+          "https://raw.githubusercontent.com/CreamK/script/master/icon/GLaDOS.ico"
         ]
       },
 
@@ -127,12 +127,12 @@
             "type": "text"
           }
         ],
-        "script": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
+        "script": "https://raw.githubusercontent.com/CreamK/script/xmbs.js",
         "author": "@CreamK",
-        "repo": "https://raw.githubusercontent.com/CreamK/Scripts/main/OtherScripts/xmbs.js",
+        "repo": "https://raw.githubusercontent.com/CreamK/script/xmbs.js",
         "icons": [
-          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png",
-          "https://raw.githubusercontent.com/CreamK/Scripts/main/Picture/run.png"
+          "https://raw.githubusercontent.com/CreamK/script/master/icon/imaotai.jpeg",
+          "https://raw.githubusercontent.com/CreamK/script/master/icon/imaotai.jpeg"
               ]
       }
       
