@@ -127,9 +127,7 @@
             "type": "text"
           }
         ],
-        "script": "https://raw.githubusercontent.com/CreamK/script/xmbs.js",
         "author": "@CreamK",
-        "repo": "https://raw.githubusercontent.com/CreamK/script/xmbs.js",
         "icons": [
           "https://raw.githubusercontent.com/CreamK/script/master/icon/imaotai.jpeg",
           "https://raw.githubusercontent.com/CreamK/script/master/icon/imaotai.jpeg"
