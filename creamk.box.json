@@ -6,8 +6,8 @@
     "repo": "https://github.com/CreamK/Scripts",
     "apps": [
      {
-        "id": "xmSteps",
-        "name": "小米步数",
+        "id": "xmSports",
+        "name": "小米运动",
         "keys": ["xmAccountNumbers","xmCurrentAccount","xmMinStep", "xmMaxStep","xmSportsToken", "xmSportsToken2", "xmSportsToken3", "xmSportsToken4", "xmSportsToken5"],
         "settings": [
           {
@@ -35,9 +35,9 @@
             "type": "number"
           }
         ],
-        "script": "https://raw.githubusercontent.com/CreamK/script/xmbs.js",
+        "script": "https://raw.githubusercontent.com/CreamK/script/script/xmyd.js",
         "author": "@CreamK",
-        "repo": "https://raw.githubusercontent.com/CreamK/script/xmbs.js",
+        "repo": "https://raw.githubusercontent.com/CreamK/script/script/xmyd.js",
         "icons": [
           "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png",
           "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png"
