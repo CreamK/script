@@ -132,6 +132,25 @@
           "https://raw.githubusercontent.com/CreamK/script/master/icon/imaotai.jpeg",
           "https://raw.githubusercontent.com/CreamK/script/master/icon/imaotai.jpeg"
               ]
+      },
+
+      {
+        "id": "elm",
+        "name": "饿了么",
+        "keys": ["elmCookie"],
+        "settings": [
+          {
+            "id": "elmCookie",
+            "name": "cookie",
+            "val": "",
+            "type": "text"
+          }
+        ],
+        "author": "@CreamK",
+        "icons": [
+          "https://raw.githubusercontent.com/CreamK/script/master/icon/elm.jpg",
+          "https://raw.githubusercontent.com/CreamK/script/master/icon/elm.jpg"
+              ]
       }
       
       
