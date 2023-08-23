@@ -5,19 +5,13 @@
 
  */
 
-const $ = new Env('♨️上传 wskey');
+const $ = new Env('获取wskey');
 let CK = $request.headers['Cookie'] || $request.headers['cookie'];
 
 const pin = CK.match(/pin=([^=;]+?);/)[1];
 const key = CK.match(/wskey=([^=;]+?);/)[1];
-const _TGUserID = $.getData('CreamK_TG_User_ID');
-const _TGBotToken = $.getData('CreamK_TG_Bot_Token');
 
-$.TGBotToken = _TGBotToken;
-$.TGUserIDs = [];
-if (_TGUserID) {
-  $.TGUserIDs.push(_TGUserID);
-}
+
 
 !(async () => {
   if (!pin || !key) {
@@ -29,59 +23,7 @@ if (_TGUserID) {
 
   try {
     const cookie = `pin=${pin};wskey=${key};`;
-    const userName = pin;
-    const decodeName = decodeURIComponent(userName);
-    let cookiesData = JSON.parse($.getData('wskeyList') || '[]');
-    //cookiesData = [];
-    let updateIndex;
-    let cookieName = '【账号】';
-    const existCookie = cookiesData.find((item, index) => {
-      const ck = item.cookie;
-      const Account = ck
-        ? ck.match(/pin=.+?;/)
-          ? ck.match(/pin=(.+?);/)[1]
-          : null
-        : null;
-      const verify = userName === Account;
-      if (verify) {
-        updateIndex = index;
-        if (ck !== cookie) {
-          $.needUpload = true;
-        }
-      }
-      return verify;
-    });
-    let tipPrefix = '';
-    if (existCookie) {
-      cookiesData[updateIndex].cookie = cookie;
-      cookieName = '【账号' + (updateIndex + 1) + '】';
-      tipPrefix = '更新京东 wskey';
-    } else {
-      cookiesData.push({
-        userName: decodeName,
-        cookie: cookie,
-      });
-      cookieName = '【账号' + cookiesData.length + '】';
-      tipPrefix = '首次写入京东 wskey';
-      $.needUpload = true;
-    }
-    $.setData(JSON.stringify(cookiesData, null, 2), 'wskeyList');
-    // $.msg(
-    //   '用户名: ' + decodeName,
-    //   '',
-    //   tipPrefix + cookieName + 'Cookie成功 🎉'
-    // );
-    console.log(`🎉 🎉 🎉获取wskey!!! ${cookie}`);
-
-
-    if ($.needUpload) {
-      for (const userId of $.TGUserIDs) {
-        await updateCookie(cookie, userId);
-        await showMsg(userId);
-      }
-    } else {
-      console.log(`♨️wskey 没有改变`);
-    }
+    $.msg('🎉 🎉 🎉京东获取wskey', '', cookie, {'update-pasteboard': cookie,openUrl: "Telegram://"});
 
     return;
   } catch (error) {
@@ -96,48 +38,8 @@ if (_TGUserID) {
   .catch((e) => $.logErr(e))
   .finally(() => $.done());
 
-function updateCookie(cookie, TGUserID) {
-  return new Promise((resolve) => {
-    const opts = {
-      url: `https://api.telegram.org/bot${$.TGBotToken}/sendMessage`,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: `chat_id=${TGUserID}&text=${cookie}&disable_web_page_preview=true`,
-    };
 
-    $.post(opts, (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`);
-        } else {
-          data = JSON.parse(data);
-          if (data.ok) {
-            console.log(`已发送 wskey(${cookie}) 至 ${TGUserID}🎉\n`);
-            $.resData = `已发送 wskey(${cookie}) 至 ${TGUserID}🎉`;
-          } else if (data.error_code === 400) {
-            console.log(`发送失败，请联系 ${TGUserID}。\n`);
-            $.resData = `发送失败，请联系 ${TGUserID}。`;
-          } else if (data.error_code === 401) {
-            console.log(`${TGUserID} bot token 填写错误。\n`);
-            $.resData = `${TGUserID} bot token 填写错误。`;
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve();
-      }
-    });
-  });
-}
 
-function showMsg() {
-  return new Promise((resolve) => {
-    $.msg($.name, $.subt, $.resData || '服务不可用');
-    resolve();
-  });
-}
 
 // https://github.com/chavyleung/scripts/blob/master/Env.js
 // prettier-ignore
