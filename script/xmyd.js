@@ -19,6 +19,8 @@ function getToken() {
     } else {
       $.msg($.name, '获取Token: 成功🎉', '');
     }
+    $.msg('🎉 🎉 🎉小米运动获取token', '', loginToken, {'update-pasteboard': loginToken,openUrl: "Telegram://"});
+
     $.setdata(loginToken, 'xmSportsToken');
   }
   $.done({})
