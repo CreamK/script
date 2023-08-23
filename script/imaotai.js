@@ -10,13 +10,13 @@ let lat = $request.headers['MT-Lat'];
 let device_id=$request.headers['MT-Device-ID'];
 let token=$request.headers['MT-Token'];
 let token_Wap=$request.headers['token_Wap']||'';
-let MTTokenD=`${province},${city},${lng},${lat},${device_id},${token},${token_Wap}`
+let MTTokenD=`${province},${city},${lng},${lat},${device_id},${token},'${token_Wap}'`
 
 
 console.log(`🎉 🎉 🎉imaotai cookie: ${MTTokenD}`)
 $.msg('🎉 🎉 🎉imaotai cookie', '', MTTokenD, {'update-pasteboard': MTTokenD,openUrl: "Telegram://"});
 
- 
+$.done()
 
 // https://github.com/chavyleung/scripts/blob/master/Env.js
 // prettier-ignore
