@@ -14,11 +14,6 @@ function getToken() {
     const body = JSON.parse($response.body);
     const loginToken = body.token_info.login_token;
     $.log(`${$.name}token\n${loginToken}\n`)
-    if ($.getdata('xmSportsToken')) {
-      $.msg($.name, '更新Token: 成功🎉', ``);
-    } else {
-      $.msg($.name, '获取Token: 成功🎉', '');
-    }
     $.msg('🎉 🎉 🎉小米运动获取token', '', loginToken, {'update-pasteboard': loginToken,openUrl: "Telegram://"});
 
     $.setdata(loginToken, 'xmSportsToken');
