@@ -5,10 +5,10 @@ const headers = {
   'User-Agent':'Dalvik/2.1.0 (Linux; U; Android 9; MI 6 MIUI/20.6.18)'
 }
 let login_token = '';
-let xmAccountNumbers = $.getdata('xmAccountNumbers');
+let xmAccountNumbers = $.getData('xmAccountNumbers');
 let  login_token_arr=[];
 //需要修改的运动步数波动范围，脚本默认修改步数范围为1w9到2w5
-const step = randomFriendPin($.getdata('xmMinStep')*1 || 20000, $.getdata('xmMaxStep')*1 || 25000);
+const step = randomFriendPin($.getData('xmMinStep')*1 || 20000, $.getData('xmMaxStep')*1 || 25000);
 function getToken() {
   if ($response.body) {
     const body = JSON.parse($response.body);
@@ -16,13 +16,13 @@ function getToken() {
     $.log(`${$.name}token\n${loginToken}\n`)
     $.msg('🎉 🎉 🎉小米运动获取token', '', loginToken, {'update-pasteboard': loginToken,openUrl: "Telegram://"});
 
-    $.setdata(loginToken, 'xmSportsToken');
+    $.setData(loginToken, 'xmSportsToken');
   }
   $.done({})
 }
 
 async function start() {
-  login_token_arr=[$.getdata('xmSportsToken'),$.getdata('xmSportsToken2'),$.getdata('xmSportsToken3'),$.getdata('xmSportsToken'),$.getdata('xmSportsToken')];
+  login_token_arr=[$.getData('xmSportsToken'),$.getData('xmSportsToken2'),$.getData('xmSportsToken3'),$.getData('xmSportsToken'),$.getData('xmSportsToken')];
   // console.log(`login_token:::${login_token}`)
   for(let i=0;i<xmAccountNumbers;i++){
 	login_token=login_token_arr[i];
