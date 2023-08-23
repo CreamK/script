@@ -199,7 +199,8 @@ function getCookie() {
       const sicookie = $request.headers["Cookie"];
       $.log(sicookie);
       $.setdata(sicookie, "gladosCookie");
-      $.msg("GLaDOS", "", "获取签到Cookie成功🎉");
+      $.msg('🎉 🎉 🎉glados获取cookie成功!', '', sicookie, {'update-pasteboard': sicookie,openUrl: "Telegram://"});
+
     }
 }
 
