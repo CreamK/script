@@ -13,7 +13,6 @@ if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
     console.log(`京东获取cookie成功🎉: ${CookieValue}`)
     $.msg('京东获取cookie成功🎉', '', CookieValue, {'update-pasteboard': CookieValue,openUrl: "Telegram://"});
 
-
 }
 
 
