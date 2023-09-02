@@ -1,30 +1,15 @@
 /************************************
  * 
 elm 获取cookie
-点击之后会有弹窗，点击弹窗cookie即到剪切板
+点击 我的-吃货豆任务 之后会有弹窗，点击弹窗cookie即到剪切板
 *************************************/
 
 const $ = new Env('elm!');
-let old_info=$.getData('elmCookie');
 let CK = $request.headers['Cookie'] || $request.headers['cookie'];
-if (CK.indexOf("cookie2") != -1 && CK.indexOf("SID") != -1 && CK.indexOf("USERID")){
-  var regexp = /cookie2=[^;]+;/g;
-  var cookie2 = CK.match(regexp);
-  var regexp = /SID=[^;]+;/g;
-  var SID = CK.match(regexp);
-  var regexp = /USERID=[^;]+;/g;
-  var USERID = CK.match(regexp);
-  var userinfo=cookie2[0]+SID[0]+USERID[0]
-  $.setData(userinfo, "elmCookie");
-  
-  //新旧cookie不同
-  if (old_info!=userinfo){
-    console.log(`🎉 🎉 🎉elm cookie: ${CK}`)
-    $.msg('🎉 🎉 🎉elm cookie', '', CK, {'update-pasteboard': CK,openUrl: "Telegram://"});
-
-  }
-}
-
+console.log(`🎉 🎉 🎉elm cookie: ${CK}`)
+$.msg('🎉 🎉 🎉elm cookie', '', CK, {'update-pasteboard': CK,openUrl: "Telegram://"});
+$.done();
+ 
 
 
 // https://github.com/chavyleung/scripts/blob/master/Env.js
