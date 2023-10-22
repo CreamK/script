@@ -106,23 +106,57 @@
       {
         "id": "imaotai",
         "name": "i茅台",
-        "keys": ["imaotai_province","imaotai_city","imaotai_token"],
+        "keys": ["MT_PROVINCE","MT_CITY","MT_DISTRIC","MT_ITEM_BLACK","MT_TOKENS","MT_VERSION","MT_USERAGENT","MT_R"],
         "settings": [
           {
-            "id": "imaotai_province",
-            "name": "报名省份",
+            "id": "MT_PROVINCE",
+            "name": "省份",
             "val": "",
             "type": "text"
           },
           {
-            "id": "imaotai_city",
-            "name": "报名城市",
+            "id": "MT_CITY",
+            "name": "城市",
             "val": "",
             "type": "text"
           },
           {
-            "id": "maotai_token",
-            "name": "token",
+            "id": "MT_DISTRIC",
+            "name": "",
+            "val": "",
+            "type": "text"
+          }
+          ,
+          {
+            "id": "MT_ITEM_BLACK",
+            "name": "",
+            "val": "",
+            "type": "text"
+          }
+          ,
+          {
+            "id": "MT_TOKENS",
+            "name": "",
+            "val": "",
+            "type": "text"
+          }
+          ,
+          {
+            "id": "MT_VERSION",
+            "name": "",
+            "val": "",
+            "type": "text"
+          }
+          ,
+          {
+            "id": "MT_USERAGENT",
+            "name": "",
+            "val": "",
+            "type": "text"
+          },
+          {
+            "id": "MT_R",
+            "name": "",
             "val": "",
             "type": "text"
           }
