@@ -1,932 +1,340 @@
 /*
-hostname = api.aliyundrive.com
-[rewrite]
-# 配置后，关闭阿里云盘重新进入获取refreshToken，获取后关闭脚本
-^https:\/\/api.aliyundrive.com\/users\/v1\/users\/device\/create_session url script-request-body qx_pan.js
+阿里云盘签到-lowking-v1.1.2
 
-^http://(aliyun|quark|pikpak)\.example\.com url script-analyze-echo-response qx_pan.js
+按下面配置完之后，打开阿里云盘获取token（如获取不到，等一段时间再打开），下面配置只验证过surge的，其他的自行测试
+⚠️只测试过surge没有其他app自行测试
 
+************************
+Surge 4.2.0+ 脚本配置(其他APP自行转换配置):
+************************
+
+[Script]
+# > 阿里云盘签到
+https://auth.alipan.com/v2/account/token
+阿里云盘签到cookie = requires-body=1,type=http-response,pattern=https:\/\/auth.(aliyundrive|alipan).com\/v2\/account\/token,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/ali/aliYunPanCheckIn.js
+阿里云盘签到 = type=cron,cronexp="0 10 0 * * ?",wake-system=1,script-path=https://raw.githubusercontent.com/lowking/Scripts/master/ali/aliYunPanCheckIn.js
+
+[MITM]
+hostname = %APPEND% auth.alipan.com
 */
-const tk = new ToolKit(`qx_pan`, `qx_pan`, { httpApi: "" });
-let url = $request.url;
-let body = $request.body;
-let type = url.match(/aliyun|pikpak|quark/)[0];
-let debug = true;
-var myResponse = {
-  status: "HTTP/1.1 200 OK",
-  body: "",
-};
-switch (type) {
-  case "aliyun":
-    if (url.indexOf("create_session") > 0) {
-      aliyun_get_token();
+const lk = new ToolKit(`阿里云盘签到`, `AliYunPanCheckIn`, {"httpApi": "ffff@10.0.0.19:6166"})
+const aliYunPanTokenKey = 'lkAliYunPanTokenKey'
+let aliYunPanToken = lk.getVal(aliYunPanTokenKey, '')
+const aliYunPanRefreshTokenKey = 'lkAliYunPanRefreshTokenKey'
+let aliYunPanRefreshToken = lk.getVal(aliYunPanRefreshTokenKey, '')
+const checkSignInRepeatKey = 'aliYunPanSignInRepeat'
+const checkSignInRepeat = lk.getVal(checkSignInRepeatKey, '')
+const joinTeamRepeatKey = 'aliYunPanJoinTeamRepeat'
+const joinTeamRepeat = lk.getVal(joinTeamRepeatKey, -1)
+lk.userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 15_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 D/C501C6D2-FAF6-4DA8-B65B-7B8B392901EB"
+
+if(!lk.isExecComm) {
+    if (lk.isRequest()) {
+        getCookie()
+        lk.done()
     } else {
-      aliyun();
-    }
-    break;
-  case "pikpak":
-    pikpak();
-    break;
-  case "quark":
-    quark();
-    break;
-  default:
-    $done({});
-}
-function aliyun_get_token() {
-  let token_json = JSON.parse(body);
-  $prefs.setValueForKey(token_json.refreshToken, "ali_refresh_token");
-  
-  tk.msg('🎉 🎉 🎉成功获取aliyun refreshToken', '', token_json.refreshToken, {'update-pasteboard': token_json.refreshToken,openUrl: "Telegram://"});
-  tk.done()
-}
-function aliyun() {
-  let jsonTk = $prefs.valueForKey("ali_token")?.split(",") || [];
-  let access_token = "Bearer " + jsonTk[0];
-  let refresh_token = jsonTk[1];
-  let default_drive_id = jsonTk[2];
-  let req = {
-    url: "https://api.aliyundrive.com/adrive/v3/file/list",
-    headers: {
-      Authorization: access_token,
-      "Content-Type": "application/json",
-    },
-  };
-  !(async () => {
-    switch (url.match(/(auth|entry)\.cgi$/)?.[0]) {
-      case "auth.cgi":
-        try {
-          let password = $prefs.valueForKey('ali_refresh_token') || refresh_token || body.match(/passwd=([^&]*)/)[1];
-          req.url = "https://auth.aliyundrive.com/v2/account/token";
-          req.body = `{"refresh_token":"${password}","grant_type":"refresh_token"}`;
-          let auth_json = await http(req, "post");
-          let jstk = `${auth_json.access_token},${auth_json.refresh_token},${auth_json.default_drive_id}`;
-          $prefs.setValueForKey(jstk, "ali_token");
-          let obj = {
-            success: true,
-            data: {
-              sid: auth_json.access_token,
-            },
-          };
-          myResponse.body = JSON.stringify(obj);
-          $done(myResponse);
-          // $done({
-          //   status: 200,
-          //   body: `{"success":true,"data":{"sid":"${auth_json.access_token}"}}`,
-          // });
-        } catch (err) {
-          console.log("err-" + err);
-          $done();
-        }
-        break;
-      case "entry.cgi":
-        try {
-          if (body.match("Delete&")) {
-            let id = body.match(/path=([^&]+)/)[1];
-            req.url = "https://api.aliyundrive.com/v3/batch";
-            req.body = `{"resource":"file","requests":[{"method":"POST","headers":{"Content-Type":"application\/json"},"id":"${id}","body":{"file_id":"${id}","drive_id":"${default_drive_id}"},"url":"\/recyclebin\/trash"}]}`;
-            $done(req);
-          } else if (body.match("method=get")) {
-            photo();
-          } else {
-            let parent_file_id = "root";
-            let path = body.match(/folder_path=([^&]+)/)?.[1];
-            let a = path
-              ? ((req.url = req.url.replace(/(parent_id=)/, `$1${path}`)),
-                (parent_file_id = path),
-                "files")
-              : "shares";
-            let _body = {
-              fields: "*",
-              drive_id: default_drive_id,
-              order_direction: "DESC",
-              order_by: "updated_at",
-              limit: 100,
-              parent_file_id: parent_file_id,
-              all: false,
-            };
-            req.body = JSON.stringify(_body);
-            let shares = [];
-            do {
-              var { items, next_marker } = await http(req, "post");
-              let data = items.map((item) => {
-                return {
-                  isdir: item.type === "folder",
-                  path: item.file_id,
-                  name: item.name,
-                  additional: { size: item.size },
-                  url: item.url,
-                };
-              });
-              shares = shares.concat(data);
-              if (next_marker) {
-                _body.marker = next_marker;
-                req.body = JSON.stringify(_body);
-              }
-            } while (next_marker);
-            shares = JSON.stringify(shares);
-            $prefs.setValueForKey(shares, "ail_file");
-            $done({
-              status: "HTTP/1.1 200 OK",
-              body: `{"success":true,"data":{"total":0,"offset":0,"${a}":${shares}}}`,
-            });
-          }
-        } catch (err) {
-          console.log("err-" + err);
-          $done();
-        }
-        break;
-      default:
-        try {
-          let fileid = url.match("fbdownload")
-            ? hex2str(url.match(/dlink=%22(.*)%22/)[1])
-            : url.match(/path=(.*$)/)[1];
-          // $request.url = JSON.parse($prefs.valueForKey("ail_file"))
-          //   .filter((x) => x.path === fileid)[0]
-          //   .url.replace(/https/, "http");
-          // $request.headers.Referer = "https://www.aliyundrive.com/";
-          // delete $request.headers.Host;
-          let m3u8_url = JSON.parse($prefs.valueForKey("ail_file"))
-            .filter((x) => x.path === fileid)[0]
-            .url.replace(/https/, "http");
-          myResponse.headers = {
-            Location: m3u8_url,
-            Referer: "https://www.aliyundrive.com/",
-          };
-          myResponse.status = "HTTP/1.1 302 OK";
-          $done(myResponse);
-        } catch (err) {
-          console.log("err-" + err);
-          $done();
-        }
-    }
-  })().catch(() => $done());
-}
-function pikpak() {
-  let _url = [
-    "https://api-drive.mypikpak.com/drive/v1/files?filters=%7B%22phase%22%3A%7B%22eq%22%3A%22PHASE_TYPE_COMPLETE%22%7D%2C%22trashed%22%3A%7B%22eq%22%3Afalse%7D%7D",
-    "",
-    "&parent_id=",
-    "",
-    "&thumbnail_size=SIZE_LARGE",
-  ];
-  let req = {
-    url: _url.join(""),
-    headers: { authorization: $prefs.valueForKey("pikpak-ck") },
-  };
-  !(async () => {
-    switch (url.match(/(auth|entry)\.cgi$/)?.[0]) {
-      case "auth.cgi":
-        body = decodeURIComponent(body);
-        let username = body.match(/account=([^&]+)/)[1];
-        let password = body.match(/passwd=([^&]+)/)[1];
-        let token =
-          "Bearer " +
-          (
-            await http(
-              {
-                url: "https://user.mypikpak.com/v1/auth/signin",
-                body: `{"client_id":"YNxT9w7GMdWvEOKa","username":"${username}","password":"${password}"}`,
-              },
-              "post"
-            )
-          )?.["access_token"];
-        $prefs.setValueForKey(token, `pikpak-ck`);
-        $done({
-          status: 200,
-          body: `{"success":true,"data":{"sid":"${token}"}}`,
-        });
-        break;
-      case "entry.cgi":
-        if (body.match("Delete&")) {
-          req.url = "https://api-drive.mypikpak.com/drive/v1/files:batchTrash";
-          req.body = `{"ids":["${body.match(/path=([^&]+)/)[1]}"]}`;
-          $done(req);
-        } else if (body.match("method=get")) {
-          photo();
-        } else {
-          let path = body.match(/folder_path=([^&]+)/)?.[1];
-          let a = path ? ((_url[3] = path), "files") : "shares";
-          let shares = [];
-          do {
-            req.url = _url.join("");
-            var { files, next_page_token } = await http(req);
-            let data = files.map((item) => {
-              return {
-                isdir: !item.file_extension,
-                path: item.id,
-                name: item.name,
-                additional: { size: parseInt(item.size) },
-              };
-            });
-            if (next_page_token) {
-              _url[1] = "&page_token=" + next_page_token;
-            }
-            shares = shares.concat(data);
-          } while (next_page_token);
-          $done({
-            response: {
-              status: 200,
-              body: JSON.stringify({
-                success: true,
-                data: { total: 0, offset: 0, [a]: shares },
-              }),
-            },
-          });
-        }
-        break;
-      default:
-        let fids = url.match("fbdownload")
-          ? hex2str(url.match(/dlink=%22(.*)%22/)[1])
-          : url.match(/path=(.*$)/)[1];
-        req.url = `https://api-drive.mypikpak.com/drive/v1/files/${fids}?&thumbnail_size=SIZE_LARGE`;
-        link = (await http(req)).links["application/octet-stream"].url.replace(
-          /https/,
-          "http"
-        );
-        $done({ status: 302, headers: { Location: link } });
-    }
-  })().catch(() => $done());
-}
-function quark() {
-  let ck = $prefs.valueForKey("quark-ck");
-  let _url = [
-    "https://drive.quark.cn/1/clouddrive/file/sort?_fetch_total=1&_page=",
-    "1",
-    "&_size=100&fr=pc&pdir_fid=",
-    0,
-    "&pr=ucpro",
-  ];
-  let req = {
-    url: _url.join(""),
-    headers: { cookie: ck, "content-type": "application/json" },
-  };
-  !(async () => {
-    switch (url.match(/(auth|entry)\.cgi$/)?.[0]) {
-      case "auth.cgi":
-        ck = decodeURIComponent(body.match(/passwd=([^&]+)/)[1]);
-        $prefs.setValueForKey(ck, "quark-ck");
-        $done({
-          status: 200,
-          body: `{"success":true,"data":{"sid":"${ck}"}}`,
-        });
-        break;
-      case "entry.cgi":
-        if (body.match("Delete&")) {
-          req.url =
-            "https://drive.quark.cn/1/clouddrive/file/delete?fr=pc&pr=ucpro";
-          req.body = `{"action_type":1,"exclude_fids":[],"filelist":["${
-            body.match(/path=([^&]+)/)[1]
-          }"]}`;
-          $done(req);
-        } else if (body.match("method=get")) {
-          photo();
-        } else {
-          let path = body.match(/folder_path=([^&]+)/)?.[1];
-          let a = path ? ((_url[3] = path), "files") : "shares";
-          let shares = [];
-          do {
-            req.url = _url.join("");
-            var {
-              metadata: { _total },
-              data: { list },
-            } = await http(req, "get", 1, ck);
-            let data = list.map((item) => {
-              return {
-                isdir: !item.file,
-                path: item.fid,
-                name: item.file_name,
-                additional: { size: item.size },
-              };
-            });
-            shares = shares.concat(data);
-          } while (_url[1] < parseInt(_total / 100) + 1 && _url[1]++);
-          $done({
-            status: 200,
-            body: JSON.stringify({
-              success: true,
-              data: { total: 0, offset: 0, [a]: shares },
-            }),
-          });
-        }
-        break;
-      default:
-        let fids = url.match("fbdownload")
-          ? hex2str(url.match(/dlink=%22(.*)%22/)[1])
-          : url.match(/path=(.*$)/)[1];
-        req.url =
-          "http://drive.quark.cn/1/clouddrive/file/download?fr=pc&pr=ucpro";
-        req.body = `{"fids":["${fids}"]}`;
-        let link = (await http(req, "post")).data[0].download_url.replace(
-          /https/,
-          "http"
-        );
-        $request.url = link;
-        $request.headers.cookie = ck;
-        delete $request.headers.Host;
-        $done($request);
-    }
-  })().catch(() => $done());
-}
-function photo() {
-  $done({
-    response: {
-      method: "GET",
-      status: 301,
-      headers: {
-        Location: `http://${type}.example.com:5000/webapi/entry.cgi?api=SYNO.FileStation.Download&version=2&method=download&mode=open&path=${
-          body.match(/path=([^&?]+)/)[1]
-        }`,
-      },
-    },
-  });
-}
-function hex2str(hex) {
-  try {
-    var trimedStr = hex.trim();
-    var rawStr =
-      trimedStr.substr(0, 2).toLowerCase() === "0x"
-        ? trimedStr.substr(2)
-        : trimedStr;
-    var len = rawStr.length;
-    if (len % 2 !== 0) {
-      return "";
-    }
-    var curCharCode;
-    var resultStr = [];
-    for (var i = 0; i < len; i = i + 2) {
-      curCharCode = parseInt(rawStr.substr(i, 2), 16);
-      resultStr.push(String.fromCharCode(curCharCode));
-    }
-    return resultStr.join("");
-  } catch (error) {
-    console.log(error);
-    return "";
-  }
-}
-function http(req, method = "get", set, ck) {
-  req["method"] = method;
-  try {
-    return new Promise((res, jct) => {
-      $task.fetch(req).then((resp) => {
-        try {
-          set &&
-            (set = resp.headers?.["Set-Cookie"]?.split(";")[0]) &&
-            $prefs.setValueForKey(ck.replace(/[^;]+/, set), "quark-ck");
-          resp?.statusCode === 200 ? res(JSON.parse(resp.body)) : jct();
-        } catch (error) {
-          console.log("error " + error);
-          return jct();
-        }
-      });
-    });
-  } catch (error) {
-    return new Promise((res) => {
-      res();
-    });
-  }
-}
-
-function llog(r) {
-  if (!debug) {
-    return;
-  }
-  if (r == null) {
-    console.log("null");
-  } else if (typeof r == "string") {
-    console.log(r);
-  } else {
-    console.log(JSON.stringify(r));
-  }
-}
-
-// https://github.com/chavyleung/scripts/blob/master/Env.js
-// prettier-ignore
-function Env(name, opts) {
-    class Http {
-      constructor(env) {
-        this.env = env;
-      }
-  
-      send(opts, method = 'GET') {
-        opts = typeof opts === 'string' ? { url: opts } : opts;
-        let sender = this.get;
-        if (method === 'POST') {
-          sender = this.post;
-        }
-        return new Promise((resolve, reject) => {
-          sender.call(this, opts, (err, resp, body) => {
-            if (err) reject(err);
-            else resolve(resp);
-          });
-        });
-      }
-  
-      get(opts) {
-        return this.send.call(this.env, opts);
-      }
-  
-      post(opts) {
-        return this.send.call(this.env, opts, 'POST');
-      }
-    }
-  
-    return new (class {
-      constructor(name, opts) {
-        this.name = name;
-        this.http = new Http(this);
-        this.data = null;
-        this.dataFile = 'box.dat';
-        this.logs = [];
-        this.isMute = false;
-        this.isNeedRewrite = false;
-        this.logSeparator = '\n';
-        this.startTime = new Date().getTime();
-        Object.assign(this, opts);
-        this.log('', `🔔${this.name}, 开始!`);
-      }
-  
-      isNode() {
-        return 'undefined' !== typeof module && !!module.exports;
-      }
-  
-      isQuanX() {
-        return 'undefined' !== typeof $task;
-      }
-  
-      isSurge() {
-        return 'undefined' !== typeof $httpClient && 'undefined' === typeof $loon;
-      }
-  
-      isLoon() {
-        return 'undefined' !== typeof $loon;
-      }
-  
-      isShadowrocket() {
-        return 'undefined' !== typeof $rocket;
-      }
-  
-      toObj(str, defaultValue = null) {
-        try {
-          return JSON.parse(str);
-        } catch {
-          return defaultValue;
-        }
-      }
-  
-      toStr(obj, defaultValue = null) {
-        try {
-          return JSON.stringify(obj);
-        } catch {
-          return defaultValue;
-        }
-      }
-  
-      getJson(key, defaultValue) {
-        let json = defaultValue;
-        const val = this.getData(key);
-        if (val) {
-          try {
-            json = JSON.parse(this.getData(key));
-          } catch {}
-        }
-        return json;
-      }
-  
-      setJson(val, key) {
-        try {
-          return this.setData(JSON.stringify(val), key);
-        } catch {
-          return false;
-        }
-      }
-  
-      getScript(url) {
-        return new Promise((resolve) => {
-          this.get({ url }, (err, resp, body) => resolve(body));
-        });
-      }
-  
-      runScript(script, runOpts) {
-        return new Promise((resolve) => {
-          let httpApi = this.getData('@chavy_boxjs_userCfgs.httpApi');
-          httpApi = httpApi ? httpApi.replace(/\n/g, '').trim() : httpApi;
-          let httpApi_timeout = this.getData(
-            '@chavy_boxjs_userCfgs.httpApi_timeout'
-          );
-          httpApi_timeout = httpApi_timeout ? httpApi_timeout * 1 : 20;
-          httpApi_timeout =
-            runOpts && runOpts.timeout ? runOpts.timeout : httpApi_timeout;
-          const [key, addr] = httpApi.split('@');
-          const opts = {
-            url: `http://${addr}/v1/scripting/evaluate`,
-            body: {
-              script_text: script,
-              mock_type: 'cron',
-              timeout: httpApi_timeout,
-            },
-            headers: { 'X-Key': key, Accept: '*/*' },
-          };
-          this.post(opts, (err, resp, body) => resolve(body));
-        }).catch((e) => this.logErr(e));
-      }
-  
-      loadData() {
-        if (this.isNode()) {
-          this.fs = this.fs ? this.fs : require('fs');
-          this.path = this.path ? this.path : require('path');
-          const curDirDataFilePath = this.path.resolve(this.dataFile);
-          const rootDirDataFilePath = this.path.resolve(
-            process.cwd(),
-            this.dataFile
-          );
-          const isCurDirDataFile = this.fs.existsSync(curDirDataFilePath);
-          const isRootDirDataFile =
-            !isCurDirDataFile && this.fs.existsSync(rootDirDataFilePath);
-          if (isCurDirDataFile || isRootDirDataFile) {
-            const datPath = isCurDirDataFile
-              ? curDirDataFilePath
-              : rootDirDataFilePath;
-            try {
-              return JSON.parse(this.fs.readFileSync(datPath));
-            } catch (e) {
-              return {};
-            }
-          } else return {};
-        } else return {};
-      }
-  
-      writeData() {
-        if (this.isNode()) {
-          this.fs = this.fs ? this.fs : require('fs');
-          this.path = this.path ? this.path : require('path');
-          const curDirDataFilePath = this.path.resolve(this.dataFile);
-          const rootDirDataFilePath = this.path.resolve(
-            process.cwd(),
-            this.dataFile
-          );
-          const isCurDirDataFile = this.fs.existsSync(curDirDataFilePath);
-          const isRootDirDataFile =
-            !isCurDirDataFile && this.fs.existsSync(rootDirDataFilePath);
-          const jsonData = JSON.stringify(this.data);
-          if (isCurDirDataFile) {
-            this.fs.writeFileSync(curDirDataFilePath, jsonData);
-          } else if (isRootDirDataFile) {
-            this.fs.writeFileSync(rootDirDataFilePath, jsonData);
-          } else {
-            this.fs.writeFileSync(curDirDataFilePath, jsonData);
-          }
-        }
-      }
-  
-      lodash_get(source, path, defaultValue = undefined) {
-        const paths = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-        let result = source;
-        for (const p of paths) {
-          result = Object(result)[p];
-          if (result === undefined) {
-            return defaultValue;
-          }
-        }
-        return result;
-      }
-  
-      lodash_set(obj, path, value) {
-        if (Object(obj) !== obj) return obj;
-        if (!Array.isArray(path)) path = path.toString().match(/[^.[\]]+/g) || [];
-        path
-          .slice(0, -1)
-          .reduce(
-            (a, c, i) =>
-              Object(a[c]) === a[c]
-                ? a[c]
-                : (a[c] = Math.abs(path[i + 1]) >> 0 === +path[i + 1] ? [] : {}),
-            obj
-          )[path[path.length - 1]] = value;
-        return obj;
-      }
-  
-      getData(key) {
-        let val = this.getVal(key);
-        // 如果以 @
-        if (/^@/.test(key)) {
-          const [, objKey, paths] = /^@(.*?)\.(.*?)$/.exec(key);
-          const objVal = objKey ? this.getVal(objKey) : '';
-          if (objVal) {
-            try {
-              const objedVal = JSON.parse(objVal);
-              val = objedVal ? this.lodash_get(objedVal, paths, '') : val;
-            } catch (e) {
-              val = '';
-            }
-          }
-        }
-        return val;
-      }
-  
-      setData(val, key) {
-        let isSuc = false;
-        if (/^@/.test(key)) {
-          const [, objKey, paths] = /^@(.*?)\.(.*?)$/.exec(key);
-          const objdat = this.getVal(objKey);
-          const objVal = objKey
-            ? objdat === 'null'
-              ? null
-              : objdat || '{}'
-            : '{}';
-          try {
-            const objedVal = JSON.parse(objVal);
-            this.lodash_set(objedVal, paths, val);
-            isSuc = this.setVal(JSON.stringify(objedVal), objKey);
-          } catch (e) {
-            const objedVal = {};
-            this.lodash_set(objedVal, paths, val);
-            isSuc = this.setVal(JSON.stringify(objedVal), objKey);
-          }
-        } else {
-          isSuc = this.setVal(val, key);
-        }
-        return isSuc;
-      }
-  
-      getVal(key) {
-        if (this.isSurge() || this.isLoon()) {
-          return $persistentStore.read(key);
-        } else if (this.isQuanX()) {
-          return $prefs.valueForKey(key);
-        } else if (this.isNode()) {
-          this.data = this.loadData();
-          return this.data[key];
-        } else {
-          return (this.data && this.data[key]) || null;
-        }
-      }
-  
-      setVal(val, key) {
-        if (this.isSurge() || this.isLoon()) {
-          return $persistentStore.write(val, key);
-        } else if (this.isQuanX()) {
-          return $prefs.setValueForKey(val, key);
-        } else if (this.isNode()) {
-          this.data = this.loadData();
-          this.data[key] = val;
-          this.writeData();
-          return true;
-        } else {
-          return (this.data && this.data[key]) || null;
-        }
-      }
-  
-      initGotEnv(opts) {
-        this.got = this.got ? this.got : require('got');
-        this.ckTough = this.ckTough ? this.ckTough : require('tough-cookie');
-        this.ckJar = this.ckJar ? this.ckJar : new this.ckTough.CookieJar();
-        if (opts) {
-          opts.headers = opts.headers ? opts.headers : {};
-          if (undefined === opts.headers.Cookie && undefined === opts.cookieJar) {
-            opts.cookieJar = this.ckJar;
-          }
-        }
-      }
-  
-      get(opts, callback = () => {}) {
-        if (opts.headers) {
-          delete opts.headers['Content-Type'];
-          delete opts.headers['Content-Length'];
-        }
-        if (this.isSurge() || this.isLoon()) {
-          if (this.isSurge() && this.isNeedRewrite) {
-            opts.headers = opts.headers || {};
-            Object.assign(opts.headers, { 'X-Surge-Skip-Scripting': false });
-          }
-          $httpClient.get(opts, (err, resp, body) => {
-            if (!err && resp) {
-              resp.body = body;
-              resp.statusCode = resp.status;
-            }
-            callback(err, resp, body);
-          });
-        } else if (this.isQuanX()) {
-          if (this.isNeedRewrite) {
-            opts.opts = opts.opts || {};
-            Object.assign(opts.opts, { hints: false });
-          }
-          $task.fetch(opts).then(
-            (resp) => {
-              const { statusCode: status, statusCode, headers, body } = resp;
-              callback(null, { status, statusCode, headers, body }, body);
-            },
-            (err) => callback(err)
-          );
-        } else if (this.isNode()) {
-          this.initGotEnv(opts);
-          this.got(opts)
-            .on('redirect', (resp, nextOpts) => {
-              try {
-                if (resp.headers['set-cookie']) {
-                  const ck = resp.headers['set-cookie']
-                    .map(this.ckTough.Cookie.parse)
-                    .toString();
-                  if (ck) {
-                    this.ckJar.setCookieSync(ck, null);
-                  }
-                  nextOpts.cookieJar = this.ckJar;
+        lk.boxJsJsonBuilder({
+            "icons": [
+                "https://raw.githubusercontent.com/lowking/Scripts/master/doc/icon/aliYunPana.png",
+                "https://raw.githubusercontent.com/lowking/Scripts/master/doc/icon/aliYunPan.png"
+            ],
+            "settings": [
+                {
+                    "id": aliYunPanTokenKey,
+                    "name": "阿里云盘token",
+                    "val": "",
+                    "type": "text",
+                    "desc": "阿里云盘token"
+                }, {
+                    "id": aliYunPanRefreshTokenKey,
+                    "name": "阿里云盘refresh_token",
+                    "val": "",
+                    "type": "text",
+                    "desc": "阿里云盘refresh_token"
                 }
-              } catch (e) {
-                this.logErr(e);
-              }
-              // this.ckJar.setCookieSync(resp.headers['set-cookie'].map(Cookie.parse).toString())
+            ],
+            "keys": [aliYunPanTokenKey, aliYunPanRefreshTokenKey]
+        }, {
+            "script_url": "https://github.com/lowking/Scripts/blob/master/ali/aliYunPanCheckIn.js",
+            "author": "@lowking",
+            "repo": "https://github.com/lowking/Scripts",
+        })
+        all()
+    }
+}
+
+function getCookie() {
+    if (lk.isGetCookie(/\/v2\/account\/token/)) {
+        lk.log(`开始获取cookie`)
+        let data = lk.getResponseBody()
+        // lk.log(`获取到的cookie：${data}`)
+        try {
+            data = JSON.parse(data)
+            let refreshToken = data["refresh_token"]
+            if (refreshToken) {
+                lk.setVal(aliYunPanRefreshTokenKey, refreshToken)
+                lk.appendNotifyInfo('🎉成功获取阿里云盘refresh_token，可以关闭相应脚本')
+            } else {
+                lk.execFail()
+                lk.appendNotifyInfo('❌获取阿里云盘token失败，请稍后再试')
+            }
+        } catch (e) {
+            lk.execFail()
+            lk.appendNotifyInfo('❌获取阿里云盘token失败')
+        }
+        lk.msg('')
+    }
+}
+
+async function all() {
+    let hasNeedSendNotify = true
+    if (aliYunPanRefreshToken == '') {
+        lk.execFail()
+        lk.appendNotifyInfo(`⚠️请先打开阿里云盘登录获取refresh_token`)
+    } else {
+        await refreshToken()
+        let hasAlreadySignIn = await signIn()
+        // await joinTeam()
+    }
+    if (hasNeedSendNotify) {
+        lk.msg(``)
+    }
+    lk.done()
+}
+
+function refreshToken() {
+    return new Promise((resolve, _reject) => {
+        const t = '获取token'
+        let url = {
+            url: 'https://auth.alipan.com/v2/account/token',
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            body: JSON.stringify({
+                "grant_type": "refresh_token",
+                "app_id": "pJZInNHN2dZWk8qg",
+                "refresh_token": aliYunPanRefreshToken
             })
-            .then(
-              (resp) => {
-                const { statusCode: status, statusCode, headers, body } = resp;
-                callback(null, { status, statusCode, headers, body }, body);
-              },
-              (err) => {
-                const { message: error, response: resp } = err;
-                callback(error, resp, resp && resp.body);
-              }
-            );
         }
-      }
-  
-      post(opts, callback = () => {}) {
-        const method = opts.method ? opts.method.toLocaleLowerCase() : 'post';
-        // 如果指定了请求体, 但没指定`Content-Type`, 则自动生成
-        if (opts.body && opts.headers && !opts.headers['Content-Type']) {
-          opts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        }
-        if (opts.headers) delete opts.headers['Content-Length'];
-        if (this.isSurge() || this.isLoon()) {
-          if (this.isSurge() && this.isNeedRewrite) {
-            opts.headers = opts.headers || {};
-            Object.assign(opts.headers, { 'X-Surge-Skip-Scripting': false });
-          }
-          $httpClient[method](opts, (err, resp, body) => {
-            if (!err && resp) {
-              resp.body = body;
-              resp.statusCode = resp.status;
+        lk.post(url, (error, _response, data) => {
+            try {
+                if (error) {
+                    lk.execFail()
+                    lk.appendNotifyInfo(`❌${t}失败，请稍后再试`)
+                } else {
+                    let dataObj = JSON.parse(data)
+                    if (dataObj.hasOwnProperty("refresh_token")) {
+                        aliYunPanToken = `Bearer ${dataObj["access_token"]}`
+                        aliYunPanRefreshToken = dataObj["refresh_token"]
+                        lk.setVal(aliYunPanTokenKey, aliYunPanToken)
+                        lk.setVal(aliYunPanRefreshTokenKey, aliYunPanRefreshToken)
+                    } else {
+                        lk.execFail()
+                        lk.appendNotifyInfo(dataObj.message)
+                    }
+                }
+            } catch (e) {
+                lk.logErr(e)
+                lk.log(`阿里云盘${t}返回数据：${data}`)
+                lk.execFail()
+                lk.appendNotifyInfo(`❌${t}错误，请带上日志联系作者，或稍后再试`)
+            } finally {
+                resolve()
             }
-            callback(err, resp, body);
-          });
-        } else if (this.isQuanX()) {
-          opts.method = method;
-          if (this.isNeedRewrite) {
-            opts.opts = opts.opts || {};
-            Object.assign(opts.opts, { hints: false });
-          }
-          $task.fetch(opts).then(
-            (resp) => {
-              const { statusCode: status, statusCode, headers, body } = resp;
-              callback(null, { status, statusCode, headers, body }, body);
+        })
+    })
+}
+
+function getReward(day) {
+    return new Promise((resolve, _reject) => {
+        const t = '领取奖励'
+        let url = {
+            url: 'https://member.alipan.com/v1/activity/sign_in_reward?_rx-s=mobile',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: aliYunPanToken,
+                "User-Agent": lk.userAgent
             },
-            (err) => callback(err)
-          );
-        } else if (this.isNode()) {
-          this.initGotEnv(opts);
-          const { url, ..._opts } = opts;
-          this.got[method](url, _opts).then(
-            (resp) => {
-              const { statusCode: status, statusCode, headers, body } = resp;
-              callback(null, { status, statusCode, headers, body }, body);
+            body: JSON.stringify({
+                "signInDay": day
+            })
+        }
+        lk.post(url, (error, _response, data) => {
+            try {
+                if (error) {
+                    lk.execFail()
+                    lk.appendNotifyInfo(`❌第${day}天${t}失败，请稍后再试`)
+                } else {
+                    lk.log(data)
+                    let dataObj = JSON.parse(data)
+                    if (dataObj.success) {
+                        lk.appendNotifyInfo(`✓${t}(第${day}天)，${dataObj?.result?.notice}`)
+                    } else {
+                        lk.execFail()
+                        lk.appendNotifyInfo(`❌第${day}天${t}失败，${dataObj.message}`)
+                    }
+                }
+            } catch (e) {
+                lk.logErr(e)
+                lk.log(`阿里云盘${t}返回数据：${data}`)
+                lk.execFail()
+                lk.appendNotifyInfo(`❌第${day}天${t}错误，请带上日志联系作者，或稍后再试`)
+            } finally {
+                resolve()
+            }
+        })
+    })
+}
+
+function doJoinTeam(joinTeamId) {
+    return new Promise(async (resolve, _reject) => {
+        const t = '加入队伍'
+        let url = {
+            url: 'https://member.alipan.com/v1/activity/sign_in_team_pk?_rx-s=mobile',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: aliYunPanToken,
+                "User-Agent": lk.userAgent
             },
-            (err) => {
-              const { message: error, response: resp } = err;
-              callback(error, resp, resp && resp.body);
+            body: JSON.stringify({
+                id: joinTeamId,
+                team: "blue"
+            })
+        }
+        lk.post(url, async (error, _response, data) => {
+            try {
+                if (error) {
+                    lk.execFail()
+                    lk.appendNotifyInfo(`❌${t}失败，请稍后再试`)
+                } else {
+                    let dataObj = JSON.parse(data)
+                    if (!dataObj.success) {
+                        lk.execFail()
+                        lk.prependNotifyInfo(dataObj.message)
+                    }
+                }
+            } catch (e) {
+                lk.logErr(e)
+                lk.log(`阿里云盘${t}返回数据：${data}`)
+                lk.execFail()
+                lk.appendNotifyInfo(`❌${t}错误，请带上日志联系作者，或稍后再试`)
+            } finally {
+                resolve()
             }
-          );
+        })
+    })
+}
+
+function joinTeam(layer = 0) {
+    return new Promise(async (resolve, _reject) => {
+        let firstDayOfYear = new Date(lk.now.getFullYear(), 0, 1)
+        const weekOfYear = Math.ceil((Math.round((lk.now.valueOf() - firstDayOfYear.valueOf()) / 86400000) + ((firstDayOfYear.getDay() + 1) - 1)) / 7)
+        // if (joinTeamRepeat == weekOfYear) {
+        // }
+        const t = '加入PK'
+        let url = {
+            url: 'https://member.alipan.com/v1/activity/sign_in_team?_rx-s=mobile',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: aliYunPanToken,
+                "User-Agent": lk.userAgent
+            },
+            body: JSON.stringify({})
         }
-      }
-      /**
-       *
-       * 示例:$.time('yyyy-MM-dd qq HH:mm:ss.S')
-       *    :$.time('yyyyMMddHHmmssS')
-       *    y:年 M:月 d:日 q:季 H:时 m:分 s:秒 S:毫秒
-       *    其中y可选0-4位占位符、S可选0-1位占位符，其余可选0-2位占位符
-       * @param {string} fmt 格式化参数
-       * @param {number} 可选: 根据指定时间戳返回格式化日期
-       *
-       */
-      time(fmt, ts = null) {
-        const date = ts ? new Date(ts) : new Date();
-        let o = {
-          'M+': date.getMonth() + 1,
-          'd+': date.getDate(),
-          'H+': date.getHours(),
-          'm+': date.getMinutes(),
-          's+': date.getSeconds(),
-          'q+': Math.floor((date.getMonth() + 3) / 3),
-          S: date.getMilliseconds(),
-        };
-        if (/(y+)/.test(fmt))
-          fmt = fmt.replace(
-            RegExp.$1,
-            (date.getFullYear() + '').substr(4 - RegExp.$1.length)
-          );
-        for (let k in o)
-          if (new RegExp('(' + k + ')').test(fmt))
-            fmt = fmt.replace(
-              RegExp.$1,
-              RegExp.$1.length == 1
-                ? o[k]
-                : ('00' + o[k]).substr(('' + o[k]).length)
-            );
-        return fmt;
-      }
-  
-      /**
-       * 系统通知
-       *
-       * > 通知参数: 同时支持 QuanX 和 Loon 两种格式, EnvJs根据运行环境自动转换, Surge 环境不支持多媒体通知
-       *
-       * 示例:
-       * $.msg(title, subt, desc, 'twitter://')
-       * $.msg(title, subt, desc, { 'open-url': 'twitter://', 'media-url': 'https://github.githubassets.com/images/modules/open_graph/github-mark.png' })
-       * $.msg(title, subt, desc, { 'open-url': 'https://bing.com', 'media-url': 'https://github.githubassets.com/images/modules/open_graph/github-mark.png' })
-       *
-       * @param {*} title 标题
-       * @param {*} subt 副标题
-       * @param {*} desc 通知详情
-       * @param {*} opts 通知参数
-       *
-       */
-      msg(title = name, subt = '', desc = '', opts) {
-        const toEnvOpts = (rawOpts) => {
-          if (!rawOpts) return rawOpts;
-          if (typeof rawOpts === 'string') {
-            if (this.isLoon()) return rawOpts;
-            else if (this.isQuanX()) return { 'open-url': rawOpts };
-            else if (this.isSurge()) return { url: rawOpts };
-            else return undefined;
-          } else if (typeof rawOpts === 'object') {
-            if (this.isLoon()) {
-              let openUrl = rawOpts.openUrl || rawOpts.url || rawOpts['open-url'];
-              let mediaUrl = rawOpts.mediaUrl || rawOpts['media-url'];
-              return { openUrl, mediaUrl };
-            } else if (this.isQuanX()) {
-              let openUrl = rawOpts['open-url'] || rawOpts.url || rawOpts.openUrl;
-              let mediaUrl = rawOpts['media-url'] || rawOpts.mediaUrl;
-              let updatePasteboard =
-                rawOpts['update-pasteboard'] || rawOpts.updatePasteboard;
-              return {
-                'open-url': openUrl,
-                'media-url': mediaUrl,
-                'update-pasteboard': updatePasteboard,
-              };
-            } else if (this.isSurge()) {
-              let openUrl = rawOpts.url || rawOpts.openUrl || rawOpts['open-url'];
-              return { url: openUrl };
+        lk.post(url, async (error, _response, data) => {
+            try {
+                if (error) {
+                    lk.execFail()
+                    lk.appendNotifyInfo(`❌${t}失败，请稍后再试`)
+                } else {
+                    let dataObj = JSON.parse(data)
+                    if (dataObj.success) {
+                        let joinedTeam = dataObj?.result?.joinTeam
+                        let joinTeamId = dataObj?.result?.id
+                        if (joinedTeam && joinTeamId) {
+                            lk.appendNotifyInfo(`🎉${t}成功\n${dataObj?.result?.period}：${dataObj?.result?.joinCount}(${dataObj?.result[joinedTeam + "WinRate"]})`)
+                            lk.setVal(joinTeamRepeatKey, JSON.stringify(weekOfYear))
+                        } else {
+                            if (layer === 0) {
+                                await doJoinTeam(joinTeamId)
+                                await joinTeam(++layer)
+                            } else {
+                                lk.log(`请求加入队伍异常：${data}`)
+                            }
+                        }
+                    } else {
+                        lk.execFail()
+                        lk.prependNotifyInfo(dataObj.message)
+                    }
+                }
+            } catch (e) {
+                lk.logErr(e)
+                lk.log(`阿里云盘${t}返回数据：${data}`)
+                lk.execFail()
+                lk.appendNotifyInfo(`❌${t}错误，请带上日志联系作者，或稍后再试`)
+            } finally {
+                resolve()
             }
-          } else {
-            return undefined;
-          }
-        };
-        if (!this.isMute) {
-          if (this.isSurge() || this.isLoon()) {
-            $notification.post(title, subt, desc, toEnvOpts(opts));
-          } else if (this.isQuanX()) {
-            $notify(title, subt, desc, toEnvOpts(opts));
-          }
+        })
+    })
+}
+
+function signIn() {
+    return new Promise(async (resolve, _reject) => {
+        let nowString = lk.formatDate(new Date(), 'yyyyMMdd')
+        if (nowString == checkSignInRepeat) {
+            lk.prependNotifyInfo('今日已经签到，无法重复签到～～')
+            resolve(1)
+            return
         }
-        if (!this.isMuteLog) {
-          let logs = ['', '==============📣系统通知📣=============='];
-          logs.push(title);
-          subt ? logs.push(subt) : '';
-          desc ? logs.push(desc) : '';
-          console.log(logs.join('\n'));
-          this.logs = this.logs.concat(logs);
+        const t = '签到'
+        let url = {
+            url: 'https://member.alipan.com/v1/activity/sign_in_list',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: aliYunPanToken,
+                "User-Agent": lk.userAgent
+            },
+            body: JSON.stringify({})
         }
-      }
-  
-      log(...logs) {
-        if (logs.length > 0) {
-          this.logs = [...this.logs, ...logs];
-        }
-        console.log(logs.join(this.logSeparator));
-      }
-  
-      logErr(err, msg) {
-        const isPrintSack = !this.isSurge() && !this.isQuanX() && !this.isLoon();
-        if (!isPrintSack) {
-          this.log('', `❗️${this.name}, 错误!`, err);
-        } else {
-          this.log('', `❗️${this.name}, 错误!`, err.stack);
-        }
-      }
-  
-      wait(time) {
-        return new Promise((resolve) => setTimeout(resolve, time));
-      }
-  
-      done(val = {}) {
-        const endTime = new Date().getTime();
-        const costTime = (endTime - this.startTime) / 1000;
-        this.log('', `🔔${this.name}, 结束! 🕛 ${costTime} 秒`);
-        this.log();
-        if (this.isSurge() || this.isQuanX() || this.isLoon()) {
-          $done(val);
-        }
-      }
-    })(name, opts);
-  }
-  
+        lk.post(url, async (error, _response, data) => {
+            try {
+                if (error) {
+                    lk.execFail()
+                    lk.appendNotifyInfo(`❌${t}失败，请稍后再试`)
+                } else {
+                    let dataObj = JSON.parse(data)
+                    if (dataObj.success) {
+                        let prefix = ""
+                        if (dataObj?.result?.signInLogs.length > 0) {
+                            for (const l of dataObj.result.signInLogs) {
+                                if (l?.status != "miss") {
+                                    prefix = `第${l?.day}天`
+                                    if (!l?.isReward) {
+                                        await getReward(l?.day)
+                                    }
+                                }
+                            }
+                        }
+                        lk.prependNotifyInfo(`🎉${prefix}${t}成功`)
+                        lk.setVal(checkSignInRepeatKey, nowString)
+                    } else {
+                        lk.execFail()
+                        lk.prependNotifyInfo(dataObj.message)
+                    }
+                }
+            } catch (e) {
+                lk.logErr(e)
+                lk.log(`阿里云盘${t}返回数据：${data}`)
+                lk.execFail()
+                lk.appendNotifyInfo(`❌${t}错误，请带上日志联系作者，或稍后再试`)
+            } finally {
+                resolve()
+            }
+        })
+    })
+}
+
+//ToolKit-start
+function ToolKit(t,s,i){return new class{constructor(t,s,i){this.tgEscapeCharMapping={"&":"＆","#":"＃"};this.userAgent=`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.2 Safari/605.1.15`;this.prefix=`lk`;this.name=t;this.id=s;this.data=null;this.dataFile=this.getRealPath(`${this.prefix}${this.id}.dat`);this.boxJsJsonFile=this.getRealPath(`${this.prefix}${this.id}.boxjs.json`);this.options=i;this.isExecComm=false;this.isEnableLog=this.getVal(`${this.prefix}IsEnableLog${this.id}`);this.isEnableLog=this.isEmpty(this.isEnableLog)?true:JSON.parse(this.isEnableLog);this.isNotifyOnlyFail=this.getVal(`${this.prefix}NotifyOnlyFail${this.id}`);this.isNotifyOnlyFail=this.isEmpty(this.isNotifyOnlyFail)?false:JSON.parse(this.isNotifyOnlyFail);this.isEnableTgNotify=this.getVal(`${this.prefix}IsEnableTgNotify${this.id}`);this.isEnableTgNotify=this.isEmpty(this.isEnableTgNotify)?false:JSON.parse(this.isEnableTgNotify);this.tgNotifyUrl=this.getVal(`${this.prefix}TgNotifyUrl${this.id}`);this.isEnableTgNotify=this.isEnableTgNotify?!this.isEmpty(this.tgNotifyUrl):this.isEnableTgNotify;this.costTotalStringKey=`${this.prefix}CostTotalString${this.id}`;this.costTotalString=this.getVal(this.costTotalStringKey);this.costTotalString=this.isEmpty(this.costTotalString)?`0,0`:this.costTotalString.replace('"',"");this.costTotalMs=this.costTotalString.split(",")[0];this.execCount=this.costTotalString.split(",")[1];this.costTotalMs=this.isEmpty(this.costTotalMs)?0:parseInt(this.costTotalMs);this.execCount=this.isEmpty(this.execCount)?0:parseInt(this.execCount);this.logSeparator="\n██";this.now=new Date;this.startTime=this.now.getTime();this.node=(()=>{if(this.isNode()){const t=require("request");return{request:t}}else{return null}})();this.execStatus=true;this.notifyInfo=[];this.boxjsCurSessionKey="chavy_boxjs_cur_sessions";this.boxjsSessionsKey="chavy_boxjs_sessions";this.log(`${this.name}, 开始执行!`);this.execComm()}getRealPath(t){if(this.isNode()){let s=process.argv.slice(1,2)[0].split("/");s[s.length-1]=t;return s.join("/")}return t}async execComm(){if(!this.isNode()){return}this.comm=process.argv.slice(1);if(this.comm[1]!="p"){return}let t=false;this.isExecComm=true;this.log(`开始执行指令【${this.comm[1]}】=> 发送到其他终端测试脚本！`);if(this.isEmpty(this.options)||this.isEmpty(this.options.httpApi)){this.log(`未设置options，使用默认值`);if(this.isEmpty(this.options)){this.options={}}this.options.httpApi=`ffff@10.0.0.19:6166`}else{if(!/.*?@.*?:[0-9]+/.test(this.options.httpApi)){t=true;this.log(`❌httpApi格式错误！格式：ffff@3.3.3.18:6166`);this.done()}}if(!t){this.callApi(this.comm[2])}}callApi(t){let s=this.comm[0];let i=this.options.httpApi.split("@")[1];this.log(`获取【${s}】内容传给【${i}】`);let e="";this.fs=this.fs?this.fs:require("fs");this.path=this.path?this.path:require("path");const o=this.path.resolve(s);const h=this.path.resolve(process.cwd(),s);const r=this.fs.existsSync(o);const n=!r&&this.fs.existsSync(h);if(r||n){const t=r?o:h;try{e=this.fs.readFileSync(t)}catch(t){e=""}}else{e=""}let a={url:`http://${i}/v1/scripting/evaluate`,headers:{"X-Key":`${this.options.httpApi.split("@")[0]}`},body:{script_text:`${e}`,mock_type:"cron",timeout:!this.isEmpty(t)&&t>5?t:5},json:true};this.post(a,(t,e,o)=>{this.log(`已将脚本【${s}】发给【${i}】`);this.done()})}boxJsJsonBuilder(t,s){if(!this.isNode()){return}if(!this.isJsonObject(t)||!this.isJsonObject(s)){this.log("构建BoxJsJson传入参数格式错误，请传入json对象");return}let i="/Users/lowking/Desktop/Scripts/lowking.boxjs.json";if(s&&s.hasOwnProperty("target_boxjs_json_path")){i=s["target_boxjs_json_path"]}if(!this.fs.existsSync(i)){return}this.log("using node");let e=["settings","keys"];const o="https://raw.githubusercontent.com/Orz-3";let h={};let r="#lk{script_url}";if(s&&s.hasOwnProperty("script_url")){r=this.isEmpty(s["script_url"])?"#lk{script_url}":s["script_url"]}h.id=`${this.prefix}${this.id}`;h.name=this.name;h.desc_html=`⚠️使用说明</br>详情【<a href='${r}?raw=true'><font class='red--text'>点我查看</font></a>】`;h.icons=[`${o}/mini/master/Alpha/${this.id.toLocaleLowerCase()}.png`,`${o}/mini/master/Color/${this.id.toLocaleLowerCase()}.png`];h.keys=[];h.settings=[{id:`${this.prefix}IsEnableLog${this.id}`,name:"开启/关闭日志",val:true,type:"boolean",desc:"默认开启"},{id:`${this.prefix}NotifyOnlyFail${this.id}`,name:"只当执行失败才通知",val:false,type:"boolean",desc:"默认关闭"},{id:`${this.prefix}IsEnableTgNotify${this.id}`,name:"开启/关闭Telegram通知",val:false,type:"boolean",desc:"默认关闭"},{id:`${this.prefix}TgNotifyUrl${this.id}`,name:"Telegram通知地址",val:"",type:"text",desc:"Tg的通知地址，如：https://api.telegram.org/bot-token/sendMessage?chat_id=-100140&parse_mode=Markdown&text="}];h.author="#lk{author}";h.repo="#lk{repo}";h.script=`${r}?raw=true`;if(!this.isEmpty(t)){for(let s of e){if(this.isEmpty(t[s])){break}if(s==="settings"){for(let i=0;i<t[s].length;i++){let e=t[s][i];for(let t=0;t<h.settings.length;t++){let s=h.settings[t];if(e.id===s.id){h.settings.splice(t,1)}}}}h[s]=h[s].concat(t[s]);delete t[s]}}Object.assign(h,t);this.fs=this.fs?this.fs:require("fs");this.path=this.path?this.path:require("path");const n=this.path.resolve(this.boxJsJsonFile);const a=this.path.resolve(process.cwd(),this.boxJsJsonFile);const l=this.fs.existsSync(n);const f=!l&&this.fs.existsSync(a);const p=JSON.stringify(h,null,"\t");if(l){this.fs.writeFileSync(n,p)}else if(f){this.fs.writeFileSync(a,p)}else{this.fs.writeFileSync(n,p)}let u=JSON.parse(this.fs.readFileSync(i));if(!(u.hasOwnProperty("apps")&&Array.isArray(u["apps"])&&u["apps"].length>0)){return}let c=u.apps;let g=c.indexOf(c.filter(t=>{return t.id==h.id})[0]);if(g>=0){u.apps[g]=h}else{u.apps.push(h)}let d=JSON.stringify(u,null,2);if(!this.isEmpty(s)){for(const t in s){let i=s[t];if(!i){switch(t){case"author":i="@lowking";case"repo":i="https://github.com/lowking/Scripts";default:continue}}d=d.replace(`#lk{${t}}`,i)}}const y=/(?:#lk\{)(.+?)(?=\})/;let S=y.exec(d);if(S!==null){this.log(`生成BoxJs还有未配置的参数，请参考https://github.com/lowking/Scripts/blob/master/util/example/ToolKitDemo.js#L17-L19传入参数：`)}let m=new Set;while((S=y.exec(d))!==null){m.add(S[1]);d=d.replace(`#lk{${S[1]}}`,``)}m.forEach(t=>{console.log(`${t} `)});this.fs.writeFileSync(i,d)}isJsonObject(t){return typeof t=="object"&&Object.prototype.toString.call(t).toLowerCase()=="[object object]"&&!t.length}appendNotifyInfo(t,s){if(s==1){this.notifyInfo=t}else{this.notifyInfo.push(t)}}prependNotifyInfo(t){this.notifyInfo.splice(0,0,t)}execFail(){this.execStatus=false}isRequest(){return typeof $request!="undefined"}isSurge(){return typeof $httpClient!="undefined"}isQuanX(){return typeof $task!="undefined"}isLoon(){return typeof $loon!="undefined"}isJSBox(){return typeof $app!="undefined"&&typeof $http!="undefined"}isStash(){return"undefined"!==typeof $environment&&$environment["stash-version"]}isNode(){return typeof require=="function"&&!this.isJSBox()}sleep(t){return new Promise(s=>setTimeout(s,t))}log(t){if(this.isEnableLog)console.log(`${this.logSeparator}${t}`)}logErr(t){this.execStatus=true;if(this.isEnableLog){console.log(`${this.logSeparator}${this.name}执行异常:`);console.log(t);if(!t.message){return}console.log(`\n${t.message}`)}}msg(t,s,i,e){if(!this.isRequest()&&this.isNotifyOnlyFail&&this.execStatus){return}if(this.isEmpty(s)){if(Array.isArray(this.notifyInfo)){s=this.notifyInfo.join("\n")}else{s=this.notifyInfo}}if(this.isEmpty(s)){return}if(this.isEnableTgNotify){this.log(`${this.name}Tg通知开始`);for(let t in this.tgEscapeCharMapping){if(!this.tgEscapeCharMapping.hasOwnProperty(t)){continue}s=s.replace(t,this.tgEscapeCharMapping[t])}this.get({url:encodeURI(`${this.tgNotifyUrl}📌${this.name}\n${s}`)},(t,s,i)=>{this.log(`Tg通知完毕`)})}else{let o={};const h=!this.isEmpty(i);const r=!this.isEmpty(e);if(this.isSurge()||this.isLoon()||this.isStash()){if(h)o["url"]=i;$notification.post(this.name,t,s,o)}else if(this.isQuanX()){if(h)o["open-url"]=i;if(r)o["media-url"]=e;$notify(this.name,t,s,o)}else if(this.isNode()){this.log("⭐️"+this.name+"\n"+t+"\n"+s)}else if(this.isJSBox()){$push.schedule({title:this.name,body:t?t+"\n"+s:s})}}}getVal(t,s=""){let i;if(this.isSurge()||this.isLoon()||this.isStash()){i=$persistentStore.read(t)}else if(this.isQuanX()){i=$prefs.valueForKey(t)}else if(this.isNode()){this.data=this.loadData();i=process.env[t]||this.data[t]}else{i=this.data&&this.data[t]||null}return!i?s:i}updateBoxjsSessions(t,s){if(t==this.boxjsSessionsKey){return}const i=`${this.prefix}${this.id}`;let e=JSON.parse(this.getVal(this.boxjsCurSessionKey,"{}"));if(!e.hasOwnProperty(i)){return}let o=e[i];let h=JSON.parse(this.getVal(this.boxjsSessionsKey,"[]"));if(h.length==0){return}let r=[];h.forEach(t=>{if(t.id==o){r=t.datas}});if(r.length==0){return}let n=false;r.forEach(i=>{if(i.key==t){i.val=s;n=true}});if(!n){r.push({key:t,val:s})}h.forEach(t=>{if(t.id==o){t.datas=r}});this.setVal(this.boxjsSessionsKey,JSON.stringify(h))}setVal(t,s){if(this.isSurge()||this.isLoon()||this.isStash()){this.updateBoxjsSessions(t,s);return $persistentStore.write(s,t)}else if(this.isQuanX()){this.updateBoxjsSessions(t,s);return $prefs.setValueForKey(s,t)}else if(this.isNode()){this.data=this.loadData();this.data[t]=s;this.writeData();return true}else{return this.data&&this.data[t]||null}}loadData(){if(!this.isNode()){return{}}this.fs=this.fs?this.fs:require("fs");this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile);const s=this.path.resolve(process.cwd(),this.dataFile);const i=this.fs.existsSync(t);const e=!i&&this.fs.existsSync(s);if(i||e){const e=i?t:s;try{return JSON.parse(this.fs.readFileSync(e))}catch(t){return{}}}else{return{}}}writeData(){if(!this.isNode()){return}this.fs=this.fs?this.fs:require("fs");this.path=this.path?this.path:require("path");const t=this.path.resolve(this.dataFile);const s=this.path.resolve(process.cwd(),this.dataFile);const i=this.fs.existsSync(t);const e=!i&&this.fs.existsSync(s);const o=JSON.stringify(this.data);if(i){this.fs.writeFileSync(t,o)}else if(e){this.fs.writeFileSync(s,o)}else{this.fs.writeFileSync(t,o)}}adapterStatus(t){if(t){if(t.status){t["statusCode"]=t.status}else if(t.statusCode){t["status"]=t.statusCode}}return t}get(t,s=(()=>{})){if(this.isSurge()||this.isLoon()||this.isStash()){$httpClient.get(t,(t,i,e)=>{s(t,this.adapterStatus(i),e)})}else if(this.isQuanX()){if(typeof t=="string")t={url:t};t["method"]="GET";$task.fetch(t).then(t=>{s(null,this.adapterStatus(t),t.body)},t=>s(t.error,null,null))}else if(this.isNode()){this.node.request(t,(t,i,e)=>{s(t,this.adapterStatus(i),e)})}else if(this.isJSBox()){if(typeof t=="string")t={url:t};t["header"]=t["headers"];t["handler"]=function(t){let i=t.error;if(i)i=JSON.stringify(t.error);let e=t.data;if(typeof e=="object")e=JSON.stringify(t.data);s(i,this.adapterStatus(t.response),e)};$http.get(t)}}post(t,s=(()=>{})){if(this.isSurge()||this.isLoon()||this.isStash()){$httpClient.post(t,(t,i,e)=>{s(t,this.adapterStatus(i),e)})}else if(this.isQuanX()){if(typeof t=="string")t={url:t};t["method"]="POST";$task.fetch(t).then(t=>{s(null,this.adapterStatus(t),t.body)},t=>s(t.error,null,null))}else if(this.isNode()){this.node.request.post(t,(t,i,e)=>{s(t,this.adapterStatus(i),e)})}else if(this.isJSBox()){if(typeof t=="string")t={url:t};t["header"]=t["headers"];t["handler"]=function(t){let i=t.error;if(i)i=JSON.stringify(t.error);let e=t.data;if(typeof e=="object")e=JSON.stringify(t.data);s(i,this.adapterStatus(t.response),e)};$http.post(t)}}put(t,s=(()=>{})){if(this.isSurge()||this.isLoon()||this.isStash()){t.method="PUT";$httpClient.put(t,(t,i,e)=>{s(t,this.adapterStatus(i),e)})}else if(this.isQuanX()){if(typeof t=="string")t={url:t};t["method"]="PUT";$task.fetch(t).then(t=>{s(null,this.adapterStatus(t),t.body)},t=>s(t.error,null,null))}else if(this.isNode()){t.method="PUT";this.node.request.put(t,(t,i,e)=>{s(t,this.adapterStatus(i),e)})}else if(this.isJSBox()){if(typeof t=="string")t={url:t};t["header"]=t["headers"];t["handler"]=function(t){let i=t.error;if(i)i=JSON.stringify(t.error);let e=t.data;if(typeof e=="object")e=JSON.stringify(t.data);s(i,this.adapterStatus(t.response),e)};$http.post(t)}}costTime(){let t=`${this.name}执行完毕！`;if(this.isNode()&&this.isExecComm){t=`指令【${this.comm[1]}】执行完毕！`}const s=(new Date).getTime();const i=s-this.startTime;const e=i/1e3;this.execCount++;this.costTotalMs+=i;this.log(`${t}耗时【${e}】秒\n总共执行【${this.execCount}】次，平均耗时【${(this.costTotalMs/this.execCount/1e3).toFixed(4)}】秒`);this.setVal(this.costTotalStringKey,JSON.stringify(`${this.costTotalMs},${this.execCount}`))}done(t={}){this.costTime();if(this.isSurge()||this.isQuanX()||this.isLoon()||this.isStash()){$done(t)}}getRequestUrl(){return $request.url}getResponseBody(){return $response.body}isGetCookie(t){return!!($request.method!="OPTIONS"&&this.getRequestUrl().match(t))}isEmpty(t){return typeof t=="undefined"||t==null||t==""||t=="null"||t=="undefined"||t.length===0}randomString(t,s="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"){t=t||32;let i=s.length;let e="";for(let o=0;o<t;o++){e+=s.charAt(Math.floor(Math.random()*i))}return e}autoComplete(t,s,i,e,o,h,r,n,a,l){t+=``;if(t.length<o){while(t.length<o){if(h==0){t+=e}else{t=e+t}}}if(r){let s=``;for(let t=0;t<n;t++){s+=l}t=t.substring(0,a)+s+t.substring(n+a)}t=s+t+i;return this.toDBC(t)}customReplace(t,s,i,e){try{if(this.isEmpty(i)){i="#{"}if(this.isEmpty(e)){e="}"}for(let o in s){t=t.replace(`${i}${o}${e}`,s[o])}}catch(t){this.logErr(t)}return t}toDBC(t){let s="";for(let i=0;i<t.length;i++){if(t.charCodeAt(i)==32){s=s+String.fromCharCode(12288)}else if(t.charCodeAt(i)<127){s=s+String.fromCharCode(t.charCodeAt(i)+65248)}}return s}hash(t){let s=0,i,e;for(i=0;i<t.length;i++){e=t.charCodeAt(i);s=(s<<5)-s+e;s|=0}return String(s)}formatDate(t,s){let i={"M+":t.getMonth()+1,"d+":t.getDate(),"H+":t.getHours(),"m+":t.getMinutes(),"s+":t.getSeconds(),"q+":Math.floor((t.getMonth()+3)/3),S:t.getMilliseconds()};if(/(y+)/.test(s))s=s.replace(RegExp.$1,(t.getFullYear()+"").substr(4-RegExp.$1.length));for(let t in i)if(new RegExp("("+t+")").test(s))s=s.replace(RegExp.$1,RegExp.$1.length==1?i[t]:("00"+i[t]).substr((""+i[t]).length));return s}}(t,s,i)}
+//ToolKit-end
