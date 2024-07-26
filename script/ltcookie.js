@@ -1,7 +1,8 @@
 const $ = new Env('联通cookie');
 let { url, method, headers, body } = $request;
-let data = body.match(/(token_online=)[0-9A-Za-z]+/)[0];
-
+let token_online = body.match(/(token_online=)[0-9A-Za-z]+/)[0];
+let appid = body.match(/(appid=)[0-9A-Za-z]+/)[0];
+let data=token_online.slice(13,token_online.length)+";"+appid.slice(6,appid.length)
 
 console.log(`🔧数据: ${data}`);
 $.msg($.name, '', data, {
