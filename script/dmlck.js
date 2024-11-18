@@ -1,6 +1,6 @@
 const $ = new Env('达美乐openId');
 let { url, method, headers, body } = $request;
-let openId = body.match(/(openid=)[0-9A-Za-z\-]+/)[0];
+let openId = body.match(/(openid=)[0-9A-Za-z\-_]+/)[0];
 let data=openId.slice(7,openId.length)
 
 console.log(`🔧数据: ${data}`);
