@@ -5,6 +5,58 @@
     "icon": "https://avatars.githubusercontent.com/u/51256470",
     "repo": "https://github.com/CreamK/Scripts",
     "apps": [
+      {
+            "id": "QX_FILE",
+            "name": "QX文件处理",
+            "keys": [
+
+              "creamk_fileName",
+              "creamk_src_fileName",
+              "creamk_des_fileName"
+
+            ],
+            "settings": [
+              {
+                "id": "creamk_fileName",
+                "name": "本地文件名",
+                "val": "",
+                "type": "text",
+                "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
+              },
+              {
+                "id": "creamk_src_fileName",
+                "name": "原地址文件名",
+                "val": "",
+                "type": "text",
+                "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
+              },
+              {
+                "id": "creamk_des_fileName",
+                "name": "目的文件名",
+                "val": "",
+                "type": "text",
+                "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
+              }
+            ],
+            "author": "@creamk",
+            "scripts": [
+              {
+                "name": "删除本地文件数据",
+                "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/clearTaskFileData.js"
+              },
+              {
+                "name": "迁移文件数据",
+                "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/migrationFileData.js"
+              }
+            ],
+            "descs_html": [
+              "☁️<a target=\"_blank\" href=\"shareddocuments://\">前往iCloud</a>"
+            ],
+            "icons": [
+              "https://raw.githubusercontent.com/id77/QuantumultX/master/icon/sim.png",
+              "https://raw.githubusercontent.com/id77/QuantumultX/master/icon/sim.png"
+            ]
+     },
      {
         "id": "xmSports",
         "name": "小米运动",
