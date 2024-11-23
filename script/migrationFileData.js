@@ -2,7 +2,7 @@ const $ = new Env('迁移文件的数据📁');
 
 const startTag = "//注入数据start";
 const endTag = "//注入数据end";
-const extractedData=''
+const extractedData='';
 
 
 
