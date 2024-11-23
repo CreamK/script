@@ -2,8 +2,8 @@ const $ = new Env('迁移文件的数据📁');
 
 const startTag = "//注入数据start";
 const endTag = "//注入数据end";
+const extractedData=''
 
-fileName = $.getData('creamk_des_fileName'); // 目标
 
 
 
@@ -26,7 +26,7 @@ async function task() {
     const endIndex = fileContent.indexOf(endTag);
     // 提取数据
     if (startIndex >= startTag.length && endIndex > startIndex) {
-      const extractedData = fileContent.substring(startIndex, endIndex).trim();
+      extractedData = fileContent.substring(startIndex, endIndex).trim();
       console.log("找到提取的数据块");
     } else {
       console.log("未找到注入数据块");
