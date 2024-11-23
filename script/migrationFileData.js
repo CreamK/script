@@ -32,8 +32,12 @@ async function task() {
       console.log("未找到注入数据块");
     }
     fileName = $.getData('creamk_des_fileName'); // 目标
-    fileContent = await $.readFile();
-    await $.writeFile(extractedData);
+    fileContent = await $.readFile(); // 读取目标文件
+    const _fileContent = fileContent.replace(
+      /\/\/注入数据start[\s\S\n]*\/\/注入数据end\n/,
+      `\/\/注入数据start\n\n${extractedData}\n\/\/注入数据end\n`
+    );
+    await $.writeFile(_fileContent);
     console.log("迁移成功");
   } else {
     console.log(`未找到标志符(//注入数据start  //注入数据end )`);

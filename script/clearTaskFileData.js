@@ -19,11 +19,12 @@ async function task() {
   ) {
     const _fileContent = fileContent.replace(
       /\/\/注入数据start[\s\S\n]*\/\/注入数据end\n/,
-      `\/\/注入数据start\n\n\n\/\/注入数据end`
+      `\/\/注入数据start\n\n\n\/\/注入数据end\n`
     );
     await $.writeFile(_fileContent);
+    console.log("删除成功");
   } else {
-    console.log(`无需合并，已存在数据。`);
+    console.log(`未找到标志符(//注入数据start  //注入数据end`);
   }
 }
 
