@@ -2,10 +2,6 @@ const $ = new Env('迁移文件的数据📁');
 
 const startTag = "//注入数据start";
 const endTag = "//注入数据end";
-const extractedData='';
-
-
-
 
 (async () => {
   await task();
@@ -26,19 +22,21 @@ async function task() {
     const endIndex = fileContent.indexOf(endTag);
     // 提取数据
     if (startIndex >= startTag.length && endIndex > startIndex) {
-      extractedData = fileContent.substring(startIndex, endIndex).trim();
+      const extractedData = fileContent.substring(startIndex, endIndex).trim();
       console.log("找到提取的数据块");
+      
+      fileName = $.getData('creamk_des_fileName'); // 目标
+      fileContent = await $.readFile(); // 读取目标文件
+      const _fileContent = fileContent.replace(
+        /\/\/注入数据start[\s\S\n]*\/\/注入数据end\n/,
+        `\/\/注入数据start\n\n${extractedData}\n\/\/注入数据end\n`
+      );
+      await $.writeFile(_fileContent);
+      console.log("迁移成功");
     } else {
       console.log("未找到注入数据块");
     }
-    fileName = $.getData('creamk_des_fileName'); // 目标
-    fileContent = await $.readFile(); // 读取目标文件
-    const _fileContent = fileContent.replace(
-      /\/\/注入数据start[\s\S\n]*\/\/注入数据end\n/,
-      `\/\/注入数据start\n\n${extractedData}\n\/\/注入数据end\n`
-    );
-    await $.writeFile(_fileContent);
-    console.log("迁移成功");
+    
   } else {
     console.log(`未找到标志符(//注入数据start  //注入数据end )`);
   }
