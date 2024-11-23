@@ -1,8 +1,6 @@
 const $ = new Env('清理任务文件的数据📁');
 
-
 fileName = $.getData('creamk_fileName'); // 上传脚本名称
-
 
 (async () => {
   await task();

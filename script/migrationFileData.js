@@ -22,11 +22,11 @@ async function task() {
     fileContent.includes(`//注入数据end`)
   ) {
     // 找到 start 和 end 的位置
-    const startIndex = content.indexOf(startTag) + startTag.length;
-    const endIndex = content.indexOf(endTag);
+    const startIndex = fileContent.indexOf(startTag) + startTag.length;
+    const endIndex = fileContent.indexOf(endTag);
     // 提取数据
     if (startIndex >= startTag.length && endIndex > startIndex) {
-      const extractedData = content.substring(startIndex, endIndex).trim();
+      const extractedData = fileContent.substring(startIndex, endIndex).trim();
       console.log("找到提取的数据块");
     } else {
       console.log("未找到注入数据块");
