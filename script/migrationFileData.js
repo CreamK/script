@@ -14,8 +14,8 @@ async function task() {
   let fileContent = await $.readFile();
 
   if (
-    fileContent.includes(`//注入数据start`) &&
-    fileContent.includes(`//注入数据end`)
+    fileContent.includes(startTag) &&
+    fileContent.includes(endTag)
   ) {
     // 找到 start 和 end 的位置
     const startIndex = fileContent.indexOf(startTag) + startTag.length;
