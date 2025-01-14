@@ -1,15 +1,18 @@
 const $ = new Env('达美乐openId');
 let { url, method, headers, body } = $request;
-let openId = body.match(/(openid=)[0-9A-Za-z\-_]+/)[0];
-let data=openId.slice(7,openId.length)
+let match = body.match(/(openid=)[0-9A-Za-z\-_]+/);
+if (match) {
+  let openId = match[0];
+  let data = openId.slice(7, openId.length);
 
-console.log(`🔧数据: ${data}`);
-$.msg($.name, '', data, {
-  'update-pasteboard': data,
-  openUrl: 'quantumult-x://',
-});
-
-
+  console.log(`🔧数据: ${data}`);
+  $.msg($.name, '', data, {
+    'update-pasteboard': data,
+    openUrl: 'quantumult-x://',
+  });
+} else {
+  console.log('🔧数据: ❌ 未匹配到 openid 数据');
+}
 
 $.done();
 
