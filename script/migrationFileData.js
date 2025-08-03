@@ -10,7 +10,7 @@ const endTag = "//注入数据end";
   .finally(() => $.done());
 
 async function task() {
-  fileName = $.getData('creamk_src_fileName'); // 原始
+  fileName = $.getData('id77_ql_fileName'); // 原始
   let fileContent = await $.readFile();
 
   if (
@@ -25,7 +25,7 @@ async function task() {
       const extractedData = fileContent.substring(startIndex, endIndex).trim();
       console.log("找到提取的数据块");
       
-      fileName = $.getData('creamk_des_fileName'); // 目标
+      fileName = $.getData('id77_des_fileName'); // 目标
       fileContent = await $.readFile(); // 读取目标文件
       const _fileContent = fileContent.replace(
         /\/\/注入数据start[\s\S\n]*\/\/注入数据end\n/,
