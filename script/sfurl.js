@@ -1,5 +1,3 @@
-
-
 const $ = new Env('顺丰获取sign');
 let url = $request.url;
 let data = $.toStr(url);
