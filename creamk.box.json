@@ -103,14 +103,6 @@
                 "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/migrationFileData.js"
               },
               {
-                "name": "合并抓包数据至iCloud☁️",
-                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/integrateDataToICloudFile.js"
-              },
-              {
-                "name": "iCloud数据写入任务☁️📁",
-                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/iCloudDataToTaskFile.js"
-              },
-              {
                 "name": "本机数据写入任务📁",
                 "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/dataToTaskFile.js"
               },
@@ -129,10 +121,6 @@
               {
                 "name": "清除本机数据🔴",
                 "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/delMitmData.js"
-              },
-              {
-                "name": "清除iCloud数据🔴☁️",
-                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/delICloudData.js"
               }
             ],
             "descs_html": [
