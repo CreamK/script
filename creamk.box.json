@@ -7,12 +7,21 @@
     "apps": [
       {
             "id": "QX_FILE",
-            "name": "QX文件处理",
+            "name": "青龙上传文件",
             "keys": [
 
               "creamk_fileName",
               "creamk_src_fileName",
-              "creamk_des_fileName"
+              "creamk_des_fileName",
+              "id77_ql_flag",
+              "id77_ql_addrs",
+              "id77_ql_port",
+              "id77_ql_clientId",
+              "id77_ql_clientSecret",
+              "id77_ql_fileName",
+              "id77_ql_schedule",
+              "id77_ql_taskName",
+              "id77_deviceName"
 
             ],
             "settings": [
@@ -36,7 +45,76 @@
                 "val": "",
                 "type": "text",
                 "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
-              }
+              },
+              {
+                  "id": "id77_ql_flag",
+                  "name": "启用",
+                  "val": false,
+                  "type": "boolean",
+                  "desc": "使用BoxJS数据"
+                },
+                {
+                  "id": "id77_ql_fileName",
+                  "name": "本地文件名",
+                  "val": "",
+                  "type": "text",
+                  "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
+                },
+                {
+                  "id": "id77_ql_schedule",
+                  "name": "任务定时",
+                  "val": "",
+                  "type": "text",
+                  "placeholder": "cron 格式"
+                },
+                {
+                  "id": "id77_ql_taskName",
+                  "name": "任务名",
+                  "val": "",
+                  "type": "text"
+                },
+                {
+                  "id": "id77_ql_addrs",
+                  "name": "青龙域名或IP(固定)",
+                  "val": "",
+                  "type": "textarea",
+                  "autoGrow": true,
+                  "rows": 2,
+                  "placeholder": "192.168.2.1@192.168.2.2"
+                },
+                {
+                  "id": "id77_ql_addrs_other",
+                  "name": "青龙域名或IP(预留)",
+                  "val": "",
+                  "type": "textarea",
+                  "autoGrow": true,
+                  "rows": 2,
+                  "placeholder": "192.168.2.1@192.168.2.2"
+                },
+                {
+                  "id": "id77_ql_port",
+                  "name": "青龙端口",
+                  "val": "",
+                  "type": "number"
+                },
+                {
+                  "id": "id77_ql_clientId",
+                  "name": "青龙 Client Id",
+                  "val": "",
+                  "type": "text"
+                },
+                {
+                  "id": "id77_ql_clientSecret",
+                  "name": "青龙 Client Secret",
+                  "val": "",
+                  "type": "text"
+                },
+                {
+                  "id": "id77_deviceName",
+                  "name": "设备名称",
+                  "val": "",
+                  "type": "text"
+                }
             ],
             "author": "@creamk",
             "scripts": [
@@ -47,6 +125,46 @@
               {
                 "name": "迁移文件数据",
                 "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/migrationFileData.js"
+              },
+              {
+                "name": "合并抓包数据至iCloud☁️",
+                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/integrateDataToICloudFile.js",
+                "iCloudPath": "integrateDataToICloudFile.js"
+              },
+              {
+                "name": "iCloud数据写入任务☁️📁",
+                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/iCloudDataToTaskFile.js",
+                "iCloudPath": "iCloudDataToTaskFile.js"
+              },
+              {
+                "name": "本机数据写入任务📁",
+                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/dataToTaskFile.js",
+                "iCloudPath": "dataToTaskFile.js"
+              },
+              {
+                "name": "上传文件设置任务🐉",
+                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/ql_task.js",
+                "iCloudPath": "ql_task.js"
+              },
+              {
+                "name": "删除任务🐉",
+                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/ql_delTask.js",
+                "iCloudPath": "ql_delTask.js"
+              },
+              {
+                "name": "清理任务文件的数据📁",
+                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/clearTaskFileData.js",
+                "iCloudPath": "clearTaskFileData.js"
+              },
+              {
+                "name": "清除本机数据🔴",
+                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/delMitmData.js",
+                "iCloudPath": "delMitmData.js"
+              },
+              {
+                "name": "清除iCloud数据🔴☁️",
+                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/delICloudData.js",
+                "iCloudPath": "delICloudData.js"
               }
             ],
             "descs_html": [
