@@ -7,7 +7,6 @@ let xianyu_cookie= $.getData('autoReply_xianyu_cookie');
 let username = $.getData('autoReply_username');
 let password=$.getData('autoReply_password');
 
-
 !(async () => {
 
     await getWebCookie()
@@ -44,7 +43,7 @@ async function getWebCookie() {
             const ret = JSON.parse(resp.body);
             if (ret.success === true) {
                 $.token=ret.token;
-              console.log(`[*] 获取Token成功~`);
+              console.log(`[*] 获取Token成功`);
                console.log(`${$.token}`);
             } else {
               console.log(`[*] 登录失败`);
@@ -91,7 +90,7 @@ async function updateCookie() {
           if (resp?.statusCode === 200) {
             const ret = JSON.parse(resp.body);
             if (ret.msg === 'updated') {
-              console.log(`[*] 更新成功~`);
+              console.log(`[*] 更新成功`);
             } else {
               console.log(`[*] 更新失败`);
             }
