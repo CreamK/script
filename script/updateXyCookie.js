@@ -7,6 +7,11 @@ let xianyu_cookie= $.getData('autoReply_xianyu_cookie');
 let username = $.getData('autoReply_username');
 let password=$.getData('autoReply_password');
 
+console.log(autoReply_url)
+console.log(account_id)
+console.log(xianyu_cookie)
+console.log(username)
+console.log(password)
 
 !(async () => {
 
@@ -30,7 +35,7 @@ async function getWebCookie() {
             'Connection': 'keep-alive',
             'Content-Type': 'application/json',
             'DNT': '1',
-            'Host': url.slice(7,url.length),
+            'Host': url.substring(7),
             'Origin':  `${autoReply_url}`,
             'Pragma': 'no-cache',
             'Referer': `${autoReply_url}`,
@@ -78,7 +83,7 @@ async function updateCookie() {
             'Connection': 'keep-alive',
             'Content-Type': 'application/json',
             'DNT': '1',
-            'Host': url.slice(7,url.length),
+            'Host': url.substring(7),
             'Origin':  `${autoReply_url}`,
             'Pragma': 'no-cache',
             'Referer': `${autoReply_url}/admin`,
