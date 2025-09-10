@@ -7,11 +7,6 @@ let xianyu_cookie= $.getData('autoReply_xianyu_cookie');
 let username = $.getData('autoReply_username');
 let password=$.getData('autoReply_password');
 
-console.log(autoReply_url)
-console.log(account_id)
-console.log(xianyu_cookie)
-console.log(username)
-console.log(password)
 
 !(async () => {
 
