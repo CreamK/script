@@ -20,13 +20,13 @@ $.setData(Cookie, 'autoReply_xianyu_cookie');
 
     await getWebCookie()
     await updateCookie();
+    $.msg('闲鱼更新cookie成功🎉');
 
 })()
   .catch((e) => $.logErr(e))
   .finally(() => $.done());
 
-$.msg('闲鱼更新cookie成功🎉');
-$.done()
+
 async function getWebCookie() {
     return new Promise((resolve, reject) => {
       const url=`${autoReply_url}/login`
