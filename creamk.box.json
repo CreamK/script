@@ -168,7 +168,52 @@
           "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png",
           "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png"
               ]
+      },
+      {
+        "id": "updateXyCookie",
+        "name": "更新闲鱼Cookie",
+        "keys": ["autoReply_url","autoReply_account_id","autoReply_xianyu_cookie", "autoReply_username","autoReply_password"],
+        "settings": [
+          {
+            "id": "autoReply_url",
+            "name": "自动回复网页地址",
+            "val": "",
+            "type": "text"
+          },
+          {
+            "id": "autoReply_account_id",
+            "name": "闲鱼账户ID",
+            "val": "",
+            "type": "text"
+          },
+          {
+            "id": "autoReply_xianyu_cookie",
+            "name": "闲鱼cookie",
+            "val": "",
+            "type": "text"
+          },
+          {
+           "id": "autoReply_username",
+            "name": "网页账户",
+            "val": "",
+            "type": "text"
+          },
+          {
+           "id": "autoReply_password",
+            "name": "网页密码",
+            "val": "",
+            "type": "text"
+          }
+        ],
+        "script": "https://raw.githubusercontent.com/CreamK/script/script/updateXyCookie.js",
+        "author": "@CreamK",
+        "repo": "https://raw.githubusercontent.com/CreamK/script/script/updateXyCookie.js",
+        "icons": [
+          "https://raw.githubusercontent.com/id77/QuantumultX/master/icon/sim.png",
+          "https://raw.githubusercontent.com/id77/QuantumultX/master/icon/sim.png"
+              ]
       }
+
       
       
       

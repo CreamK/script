@@ -10,7 +10,7 @@ const Cookie = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
 
 console.log(`闲鱼获取cookie成功🎉: ${Cookie}`)
 $.msg('闲鱼获取cookie成功🎉', '', Cookie, {'update-pasteboard': Cookie,openUrl: "quantumult-x://"});
-
+$.setData(Cookie, 'autoReply_xianyu_cookie');
 $.done()
 
 
