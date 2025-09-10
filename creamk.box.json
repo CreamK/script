@@ -206,10 +206,10 @@
           }
         ],
         "scripts": [
-              {
-                "name": "自动更新闲鱼cookie",
-                "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/updateXyCookie.js"
-              }
+            {
+              "name": "自动更新闲鱼cookie",
+              "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/updateXyCookie.js"
+            }
         ],
         "author": "@CreamK",
         "repo": "https://github.com/CreamK/Scripts",
