@@ -18,7 +18,6 @@ let password=$.getData('autoReply_password');
 getWebCookie()
 updateCookie();
 
-console.log(`闲鱼更新cookie成功🎉: ${Cookie}`)
 $.msg('闲鱼更新cookie成功🎉');
 $.done()
 
