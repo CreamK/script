@@ -20,14 +20,13 @@ let xianyu_cookie= Cookie;
 let username = $.getData('autoReply_username');
 let password=$.getData('autoReply_password');
 
-await getWebCookie()
-await updateCookie();
+getWebCookie()
+updateCookie();
 
 console.log(`闲鱼更新cookie成功🎉: ${Cookie}`)
 $.done()
 
-async function getWebCookie() {
-    return new Promise((resolve, reject) => {
+function getWebCookie() {
       const url=`${autoReply_url}/login`
       const headers={
             'Accept': '*/*',
@@ -68,13 +67,11 @@ async function getWebCookie() {
         }
       );
 
- });
 }
 
 
 
-async function updateCookie() {
-    return new Promise((resolve, reject) => {
+function updateCookie() {
       const url=`${autoReply_url}/cookies/${account_id}`
       const headers={
             'Accept': '*/*',
@@ -111,7 +108,6 @@ async function updateCookie() {
         }
       );
 
- });
 }
 
 
