@@ -12,8 +12,6 @@ console.log(`闲鱼获取cookie成功🎉: ${Cookie}`)
 $.msg('闲鱼获取cookie成功🎉', '', Cookie, {'update-pasteboard': Cookie,openUrl: "quantumult-x://"});
 $.setData(Cookie, 'autoReply_xianyu_cookie');
 
-
-
 let autoReply_url=$.getData('autoReply_url');
 let account_id=$.getData('autoReply_account_id');
 let xianyu_cookie= Cookie;
