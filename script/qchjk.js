@@ -11,7 +11,6 @@ CK=CK.substring(7);
 console.log(`🎉 🎉 🎉雀巢健康: ${CK}`);
 $.msg('🎉 🎉 🎉雀巢健康', '', CK, {'update-pasteboard': CK,openUrl: "quantumult-x://"});
 
-
 $.done()
 
 
