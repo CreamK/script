@@ -3,3 +3,4 @@ secretScript
 test*
 
 .DS_Store
+.idea
