@@ -144,7 +144,7 @@
               },
               {
                 "name": "删除任务🐉",
-                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/ql_delTask.js"
+                "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_delTask.js"
               },
               {
                 "name": "清理任务文件的数据📁",
