@@ -21,17 +21,17 @@ const needBoxJS = $.getData('id77_ql_flag');
 if (needBoxJS === 'true') {
     creamk_nwql_flag=$.getData('creamk_nwql_flag')
     qlAddrs_nw =[]
-    if (creamk_nwql_flag===true){
+    if (creamk_nwql_flag==='true'){
         qlAddrs_nw = $.getData('creamk_ql_addrs_nw')?.split('@') ?? []; // 青龙面板地址
     }
     creamk_gwql_flag=$.getData('creamk_gwql_flag')
     qlAddrs_gw =[]
-    if (creamk_gwql_flag===true){
+    if (creamk_gwql_flag==='true'){
         qlAddrs_gw = $.getData('creamk_ql_addrs_gw')?.split('@') ?? []; // 青龙面板地址
     }
     creamk_lshql_flag=$.getData('creamk_lshql_flag')
     qlAddrs_lsh =[]
-    if (creamk_lshql_flag===true){
+    if (creamk_lshql_flag==='true'){
         qlAddrs_lsh = $.getData('creamk_ql_addrs_lsh')?.split('@') ?? []; // 青龙面板地址
     }
 
