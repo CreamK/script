@@ -42,8 +42,8 @@ if (needBoxJS === 'true') {
   schedule = $.getData('id77_ql_schedule'); // 定时时间
   taskName = $.getData('id77_ql_taskName'); // 定时任务名称
 
-  const _qlAddrs = $.getData('id77_ql_addrs_other')?.split('@') ?? [];
-  if (_qlAddrs.length) {
+
+  if (qlAddrs_lsh.length) {
     qlAddrs = [...qlAddrs_nw, ...qlAddrs_gw, ...qlAddrs_lsh].filter((item) => !!item);
   }
 }
