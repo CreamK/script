@@ -53,8 +53,14 @@
                   "type": "text"
                 },
                 {
-                  "id": "id77_ql_addrs",
-                  "name": "青龙域名或IP(固定)",
+                  "id": "creamk_nwql_flag",
+                  "name": "启用内网青龙",
+                  "val": true,
+                  "type": "boolean"
+                },
+                {
+                  "id": "creamk_ql_addrs_nw",
+                  "name": "青龙域名或IP(内网)",
                   "val": "",
                   "type": "textarea",
                   "autoGrow": true,
@@ -62,8 +68,29 @@
                   "placeholder": "192.168.2.1@192.168.2.2"
                 },
                 {
-                  "id": "id77_ql_addrs_other",
-                  "name": "青龙域名或IP(预留)",
+                  "id": "creamk_gwql_flag",
+                  "name": "启用公网青龙",
+                  "val": true,
+                  "type": "boolean"
+                },
+                {
+                  "id": "creamk_ql_addrs_gw",
+                  "name": "青龙域名或IP(公网)",
+                  "val": "",
+                  "type": "textarea",
+                  "autoGrow": true,
+                  "rows": 2,
+                  "placeholder": "192.168.2.1@192.168.2.2"
+                },
+                {
+                  "id": "creamk_lshql_flag",
+                  "name": "启用临时青龙",
+                  "val": true,
+                  "type": "boolean"
+                },
+                {
+                  "id": "creamk_ql_addrs_lsh",
+                  "name": "青龙域名或IP(临时)",
                   "val": "",
                   "type": "textarea",
                   "autoGrow": true,
