@@ -4,10 +4,10 @@
 点击之后会有弹窗，点击弹窗cookie即到剪切板
 *************************************/
 const $ = new Env('闲鱼');
-let autoReply_url=$.getData('autoReply_url');
-let account_id=$.getData('autoReply_account_id');
-let username = $.getData('autoReply_username');
-let password=$.getData('autoReply_password');
+// let autoReply_url=$.getData('autoReply_url');
+// let account_id=$.getData('autoReply_account_id');
+// let username = $.getData('autoReply_username');
+// let password=$.getData('autoReply_password');
 const Cookie = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
 let xianyu_cookie= Cookie;
 console.log(`闲鱼获取cookie成功🎉: ${Cookie}`)
@@ -16,105 +16,105 @@ $.setData(Cookie, 'autoReply_xianyu_cookie');
 
 
 
-!(async () => {
+// !(async () => {
+//
+//     await getWebCookie()
+//     await updateCookie();
+//     $.msg('闲鱼更新cookie成功🎉');
+//
+// })()
+//   .catch((e) => $.logErr(e))
+//   .finally(() => $.done());
+//
+//
+// async function getWebCookie() {
+//     return new Promise((resolve, reject) => {
+//       const url=`${autoReply_url}/login`
+//       const headers={
+//             'Accept': '*/*',
+//             'Accept-Encoding': 'gzip, deflate',
+//             'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,ko;q=0.6',
+//             'Cache-Control': 'no-cache',
+//             'Connection': 'keep-alive',
+//             'Content-Type': 'application/json',
+//             'DNT': '1',
+//             'Host': url.substring(7),
+//             'Origin':  `${autoReply_url}`,
+//             'Pragma': 'no-cache',
+//             'Referer': `${autoReply_url}`,
+//             'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36'
+//       }
+//       const body=`{"username":"${username}","password":"${password}"}`
+//       $.post(
+//         { url, method: 'POST', headers: headers, body, timeout: 2000 },
+//         (err, resp, data) => {
+//           if (resp?.statusCode === 200) {
+//             const ret = JSON.parse(resp.body);
+//             if (ret.success === true) {
+//                 $.token=ret.token;
+//               console.log(`[*] 获取Token成功`);
+//                console.log(`${$.token}`);
+//             } else {
+//               console.log(`[*] 登录失败`);
+//             }
+//           } else {
+//             console.log(`[*] 登录失败,状态码: ${resp?.statusCode}`);
+//             console.log($.toStr(data));
+//           }
+//
+//           if (err) {
+//             console.log(`[*] 登录失败,错误:${$.toStr(err)}`);
+//           }
+//           resolve(data);
+//         }
+//       );
+//
+//  });
+// }
 
-    await getWebCookie()
-    await updateCookie();
-    $.msg('闲鱼更新cookie成功🎉');
 
-})()
-  .catch((e) => $.logErr(e))
-  .finally(() => $.done());
-
-
-async function getWebCookie() {
-    return new Promise((resolve, reject) => {
-      const url=`${autoReply_url}/login`
-      const headers={
-            'Accept': '*/*',
-            'Accept-Encoding': 'gzip, deflate',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,ko;q=0.6',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/json',
-            'DNT': '1',
-            'Host': url.substring(7),
-            'Origin':  `${autoReply_url}`,
-            'Pragma': 'no-cache',
-            'Referer': `${autoReply_url}`,
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36'
-      }
-      const body=`{"username":"${username}","password":"${password}"}`
-      $.post(
-        { url, method: 'POST', headers: headers, body, timeout: 2000 },
-        (err, resp, data) => {
-          if (resp?.statusCode === 200) {
-            const ret = JSON.parse(resp.body);
-            if (ret.success === true) {
-                $.token=ret.token;
-              console.log(`[*] 获取Token成功`);
-               console.log(`${$.token}`);
-            } else {
-              console.log(`[*] 登录失败`);
-            }
-          } else {
-            console.log(`[*] 登录失败,状态码: ${resp?.statusCode}`);
-            console.log($.toStr(data));
-          }
-
-          if (err) {
-            console.log(`[*] 登录失败,错误:${$.toStr(err)}`);
-          }
-          resolve(data);
-        }
-      );
-
- });
-}
-
-
-
-async function updateCookie() {
-    return new Promise((resolve, reject) => {
-      const url=`${autoReply_url}/cookies/${account_id}`
-      const headers={
-            'Accept': '*/*',
-            'Accept-Encoding': 'gzip, deflate',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,ko;q=0.6',
-            'Authorization':   `Bearer ${$.token}`,
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/json',
-            'DNT': '1',
-            'Host': url.substring(7),
-            'Origin':  `${autoReply_url}`,
-            'Pragma': 'no-cache',
-            'Referer': `${autoReply_url}/admin`,
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36'
-      }
-      const body=`{"id":"${account_id}","value":"${xianyu_cookie}"}`
-      $.post(
-        { url, method: 'PUT', headers: headers, body, timeout: 2000 },
-        (err, resp, data) => {
-          if (resp?.statusCode === 200) {
-            const ret = JSON.parse(resp.body);
-            if (ret.msg === 'updated') {
-              console.log(`[*] 更新成功`);
-            } else {
-              console.log(`[*] 更新失败`);
-            }
-          } else {
-            console.log(`[*] 更新失败,状态码: ${resp?.statusCode}`);
-            console.log($.toStr(data));
-          }
-
-          resolve(data);
-        }
-      );
-
- });
-}
-
+//
+// async function updateCookie() {
+//     return new Promise((resolve, reject) => {
+//       const url=`${autoReply_url}/cookies/${account_id}`
+//       const headers={
+//             'Accept': '*/*',
+//             'Accept-Encoding': 'gzip, deflate',
+//             'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,ko;q=0.6',
+//             'Authorization':   `Bearer ${$.token}`,
+//             'Cache-Control': 'no-cache',
+//             'Connection': 'keep-alive',
+//             'Content-Type': 'application/json',
+//             'DNT': '1',
+//             'Host': url.substring(7),
+//             'Origin':  `${autoReply_url}`,
+//             'Pragma': 'no-cache',
+//             'Referer': `${autoReply_url}/admin`,
+//             'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36'
+//       }
+//       const body=`{"id":"${account_id}","value":"${xianyu_cookie}"}`
+//       $.post(
+//         { url, method: 'PUT', headers: headers, body, timeout: 2000 },
+//         (err, resp, data) => {
+//           if (resp?.statusCode === 200) {
+//             const ret = JSON.parse(resp.body);
+//             if (ret.msg === 'updated') {
+//               console.log(`[*] 更新成功`);
+//             } else {
+//               console.log(`[*] 更新失败`);
+//             }
+//           } else {
+//             console.log(`[*] 更新失败,状态码: ${resp?.statusCode}`);
+//             console.log($.toStr(data));
+//           }
+//
+//           resolve(data);
+//         }
+//       );
+//
+//  });
+// }
+//
 
 
 
