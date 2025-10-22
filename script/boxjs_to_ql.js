@@ -61,7 +61,7 @@ async function refreshQingLong() {
                     id: `${i?.id}`
                 });
             } else {
-                await o.addEnv([{ value: `${$.ckVal}`, name: $.ckName, remarks: '' }])
+                await o.addEnv([{ value: `${$.ckVal}`, name: $.qlCkName, remarks: '' }])
             }
         } catch (e) {
 
