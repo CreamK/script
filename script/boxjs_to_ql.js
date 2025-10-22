@@ -67,7 +67,7 @@ async function refreshQingLong() {
 
         } finally {
             await o.getEnvs();
-            let [q] = o.selectEnvByName($.ckName) ?? [];
+            let [q] = o.selectEnvByName($.qlCkName) ?? [];
             $.info(`同步后:${q?.value}`);
             i?.value != q?.value ? $.info(`同步变量:成功！`) : $.info(`同步变量:未发生变化！`);
             $.msg($.name, "", "✅ The environment variable was uploaded successfully.");
