@@ -265,7 +265,7 @@
             "scripts": [
                 {
                     "name": "同步变量到青龙(填写ckName，保存，执行)",
-                    "script": "https://raw.githubusercontent.com/Sliverkiss/GoodNight/refs/heads/master/Script/qlSync.js"
+                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/boxjs_to_ql.js"
                 }
             ],
             "settings": [
