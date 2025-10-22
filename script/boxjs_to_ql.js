@@ -43,7 +43,7 @@ async function refreshQingLong() {
         });
         await o.checkLogin();
         await o.getEnvs();
-        let [i] = o.selectEnvByName($.ckName) ?? [];
+        let [i] = o.selectEnvByName($.qlCkName) ?? [];
         try {
             //读取boxjs中的变量
             $.ckVal = $.getdata($.ckName);
