@@ -1,342 +1,128 @@
+// 为 $ 准备的上下文环境
+const moduleName = "QingLong";
+const $ = new Env(moduleName);
 /**
- *@file       boxjs_to_ql
- *@desp       boxjs同步环境变量到多个青龙面板。
- *@env        @ql.sync_env__key, @ql.ip, @ql.port, @ql.client_id, @ql.client_secret, @ql.mute
- *@author     WowYiJiu & Gemini
- *@updated    2025-07-31
- *@link       https://raw.githubusercontent.com/fly818/QX/refs/heads/master/Script/boxjs_to_ql.js
- *@thanks     @dompling: https://github.com/dompling
-
-💬 BoxJs订阅:
-   https://raw.githubusercontent.com/fly818/QX/refs/heads/master/boxjs/fly818.boxjs.json
-
-   配置项说明:
-   - 支持多面板, 在 IP/端口/ID/Secret 输入框中用@分隔多个值。
-   - 支持通用配置, 若端口/ID/Secret相同, 只需填写一个通用值。
-
-⚙ 配置 (Quantumult X)
-[task_local]
-0 0 * * * <YOUR_SCRIPT_URL>, tag=boxjs多面板同步, img-url=https://raw.githubusercontent.com/WowYiJiu/Personal/main/icon/Color/ql.png, enabled=true
-*/
-
-// 初始化一个API实例，用于后续的网络请求、数据读写等操作
-const $ = new API("ql_multi_sync", true);
-
-// 定义通知的标题
-const title = "🐉 通知提示";
-
-// 封装一个函数，用于根据不同环境（如Quantumult X）从BoxJs读取数据
-$.getval = (t) => ($.env.isQX ? $prefs.valueForKey(t) : $persistentStore.read(t));
-
-// 封装一个更高级的函数，用于获取数据，支持从JSON对象中通过路径获取值
-$.getdata = (t) => {
-    const lodash_get = (t, s = "", e) => s.split(/[\.\[\]]/g).filter(Boolean).reduce((res, key) => (res !== null && res !== undefined) ? res[key] : res, t) || e;
-    let s = $.getval(t);
-    if (/^@/.test(t)) {
-        const [, e, i] = /^@(.*)\.(.*?)$/.exec(t);
-        const r = e ? $.getval(e) : "";
-        if (r) {
-            try {
-                const t = JSON.parse(r);
-                s = t ? lodash_get(t, i, "") : s
-            } catch (error) {
-                s = ""
-            }
-        }
-    }
-    return s
-};
-
-
-/**
- * ----------------------------------------------------------------
- * 集成并重构后的青龙API模块 (QinglongAPI Class)
- * ----------------------------------------------------------------
+ * ===================================
+ * 持久化属性: qlSync 公开的数据结构
+ * ===================================
  */
-class QinglongAPI {
-    constructor(ip, port, clientId, clientSecret) {
-        this.ip = ip;
-        this.port = port;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        // 增强URL处理，兼容用户可能输入 http/https 前缀的情况
-        if (ip.startsWith('http')) {
-            this.url = `${ip}:${port}`;
-        } else {
-            this.url = `http://${ip}:${port}`;
-        }
-        this.token = "";
-        this.headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json;charset=UTF-8"
-        };
-        $.info(`初始化面板实例: ${this.url}`);
-    }
+$.arguments = getArguments();
+// 存储`青龙域名`
+$.host = $.arguments?.host || "";
+$.clientId = $.arguments?.clientId || "";
+$.secret = $.arguments?.secret || "";
+$.ckName = $.arguments?.ckName || "";
+$.qlCkName=$.arguments?.qlCkName || "";
 
-    async login() {
-        const opt = {
-            url: `${this.url}/open/auth/token?client_id=${this.clientId}&client_secret=${this.clientSecret}`,
-            headers: this.headers,
-        };
-        const resp = await $.http.get(opt);
+
+//主程序执行入口
+!(async () => {
+    try {
+        await refreshQingLong();
+    } catch (e) {
+        throw e;
+    }
+})()
+    .catch((e) => { $.error(e), $.msg($.name, `⛔️ script run error!`, e.message || e) })
+    .finally(async () => {
+        $.done({});
+    });
+
+/**
+ * ===================================
+ * 处理同步数据
+ * ===================================
+ */
+async function refreshQingLong() {
+    try {
+        if (!($.host && $.clientId && $.secret && $.ckName)) throw new Error("请先在boxjs填写相关配置");
+        let o = await loadQingLong({
+            host: $.host,
+            clientId: $.clientId,
+            secret: $.secret
+        });
+        await o.checkLogin();
+        await o.getEnvs();
+        let [i] = o.selectEnvByName($.ckName) ?? [];
         try {
-            const data = JSON.parse(resp.body);
-            if (data.code === 200 && data.data.token) {
-                this.token = data.data.token;
-                this.headers['Authorization'] = `Bearer ${this.token}`;
-                $.log(`✅ [${this.ip}] 登录成功`);
-                return true;
+            //读取boxjs中的变量
+            $.ckVal = $.getdata($.ckName);
+            $.info(`获取变量:${$.ckName}`);
+            $.info(`同步内容:${$.ckVal}`);
+            if (!$.ckVal) throw new Error(`${$.ckName}所对应的值不存在，同步失败`);
+            //如果存在则更新数据，否则添加
+            $.info(`开始尝试同步到青龙...`);
+            $.info(`同步前:${i?.value}`);
+            if (i) {
+                await o.updateEnv({
+                    value: `${$.ckVal}`,
+                    name: $.qlCkName,
+                    remarks: `${i?.remarks}`,
+                    id: `${i?.id}`
+                });
             } else {
-                $.error(`❌ [${this.ip}] 登录失败: ${data.message || '返回数据格式不正确'}`);
-                return false;
+                await o.addEnv([{ value: `${$.ckVal}`, name: $.ckName, remarks: '' }])
             }
         } catch (e) {
-            $.error(`❌ [${this.ip}] 登录请求失败: ${e}`);
-            return false;
-        }
-    }
 
-    async getEnvs(searchValue = "") {
-        const opt = {
-            url: `${this.url}/open/envs?searchValue=${searchValue}`,
-            headers: this.headers,
-        };
-        const resp = await $.http.get(opt);
-        try {
-            return JSON.parse(resp.body);
-        } catch (e) {
-            return { code: 500, message: `获取环境变量失败: ${e}` };
+        } finally {
+            await o.getEnvs();
+            let [q] = o.selectEnvByName($.ckName) ?? [];
+            $.info(`同步后:${q?.value}`);
+            i?.value != q?.value ? $.info(`同步变量:成功！`) : $.info(`同步变量:未发生变化！`);
+            $.msg($.name, "", "✅ The environment variable was uploaded successfully.");
         }
+    } catch (e) {
+        throw e;
     }
-
-    async addEnvs(envs) {
-        const opt = {
-            url: `${this.url}/open/envs`,
-            headers: this.headers,
-            body: JSON.stringify(envs)
-        };
-        const resp = await $.http.post(opt);
-        try {
-            return JSON.parse(resp.body);
-        } catch (e) {
-            return { code: 500, message: `新增环境变量失败: ${e}` };
-        }
+}
+/**
+ * ===================================
+ * 获取基础数据
+ * ===================================
+ */
+//获取surge模块/loon插件参数
+function getArguments() {
+    let arg;
+    if (typeof $argument != 'undefined') {
+        arg = $.isLoon()
+            ? $argument
+            : Object.fromEntries($argument.split('&').map(item => item.split('=')));
+    } else {
+        arg = {};
     }
+    $.info(`传入的 $argument: ${$.toStr(arg)} `);
 
-    async updateEnv(env) {
-        const body = {
-            name: env.name,
-            value: env.value,
-            remarks: env.remarks,
-            id: env.id
-        };
-        const opt = {
-            url: `${this.url}/open/envs`,
-            headers: this.headers,
-            body: JSON.stringify(body)
-        };
-        const resp = await $.http.put(opt);
-        try {
-            return JSON.parse(resp.body);
-        } catch (e) {
-            return { code: 500, message: `更新环境变量失败: ${e}` };
-        }
+    arg = { ...arg, ...$.getjson(`CreamK_QL`) };
+
+    $.info(`从持久化存储读取参数后: ${$.toStr(arg)} `);
+
+    return arg;
+}
+
+//加载青龙模块
+async function loadQingLong(QL) {
+    let code = $.getdata("qinglong_code") || "";
+    if (code && Object.keys(code).length) {
+        $.info("[QingLong] 模块加载成功,请继续");
+        eval(code);
+        return new QingLong(QL.host, QL.clientId, QL.secret);
+    } else {
+        $.info("[QingLong] 开始安装模块...");
+        return new Promise(async resolve => {
+            $.getScript("https://fastly.jsdelivr.net/gh/Sliverkiss/QuantumultX@main/Utils/QingLong.min.js").then(fn => {
+                $.setdata(fn, "qinglong_code");
+                eval(fn);
+                const ql = new QingLong(QL.host, QL.clientId, QL.secret);
+                $.info("[QingLong] 模块加载成功,请继续");
+                resolve(ql);
+            });
+        });
     }
 }
 
-
-/**
- * ----------------------------------------------------------------
- * 主执行函数
- * ----------------------------------------------------------------
- */
-!(async () => {
-    // 1. 读取并解析多面板配置
-    $.info("==> 步骤 1: 读取面板配置");
-    const ips = ($.getdata('@ql.ip') || "").split('@').filter(Boolean);
-    const ports = ($.getdata('@ql.port') || "").split('@').filter(Boolean);
-    const clientIds = ($.getdata('@ql.client_id') || "").split('@').filter(Boolean);
-    const clientSecrets = ($.getdata('@ql.client_secret') || "").split('@').filter(Boolean);
-
-    const servers = [];
-    for (let i = 0; i < ips.length; i++) {
-        // 智能处理配置: 使用索引为i的值,如果不存在,则使用第一个值作为通用值
-        const port = ports[i] || ports[0];
-        const clientId = clientIds[i] || clientIds[0];
-        const clientSecret = clientSecrets[i] || clientSecrets[0];
-
-        if (ips[i] && port && clientId && clientSecret) {
-            servers.push({
-                ip: ips[i],
-                port: port,
-                clientId: clientId,
-                clientSecret: clientSecret
-            });
-        }
-    }
-
-    if (servers.length === 0) {
-         return $.notify(title, "❌ 配置错误", "未找到任何有效的青龙面板配置，请检查BoxJs中的配置是否完整。");
-    }
-    $.info(`共发现 ${servers.length} 个面板配置。`);
-
-    // 2. 读取并解析环境变量同步规则
-    $.info("\n==> 步骤 2: 读取同步规则");
-    const envKeys = $.getdata("@ql.sync_env__key") || "";
-    const syncEnvs = [];
-    const envsData = envKeys.split('\n');
-
-    for (const line of envsData) {
-        const trimmedLine = line.trim();
-        if (!trimmedLine || trimmedLine.startsWith('#')) continue;
-        if (trimmedLine.startsWith('-')) {
-            $.log(`规则 [${trimmedLine}] 已禁用，跳过。`);
-            continue;
-        }
-        const parts = trimmedLine.split('#');
-        if (parts.length < 3) {
-            $.log(`规则格式不正确，跳过: "${trimmedLine}"`);
-            continue;
-        }
-        syncEnvs.push({ 'BoxJsKey': parts[0], 'qlEnv': parts[1], 'qlRemark': parts[2] });
-    }
-    $.info(`共发现 ${syncEnvs.length} 个有效的同步规则。`);
-
-
-    // 3. 获取所有需要同步的变量值
-    $.info("\n==> 步骤 3: 准备本地变量数据");
-    const syncData = {};
-    const validate = (value, pattern) => new RegExp(pattern).test(value);
-
-    for (const item of syncEnvs) {
-        if (!validate(item.qlEnv, '^[a-zA-Z_][0-9a-zA-Z_]*$')) {
-            $.error(`${item.qlRemark}：${item.qlEnv} 环境变量名格式不正确, 本次不同步`);
-            continue;
-        }
-        const qlValue = $.getdata(item.BoxJsKey) || "";
-        if (!qlValue) {
-            $.log(`[${item.qlRemark}] 的值为空，跳过。`);
-            continue;
-        }
-        syncData[item.BoxJsKey] = {
-            name: item.qlEnv,
-            value: qlValue,
-            remarks: item.qlRemark,
-        };
-    }
-
-    const qlData = Object.values(syncData);
-    if (qlData.length === 0) {
-        return $.notify(title, "同步完成", "没有需要同步的有效环境变量。");
-    }
-    $.info(`成功准备 ${qlData.length} 个待同步的变量数据。`);
-
-    // 4. 遍历所有服务器，执行同步操作
-    $.info("\n==> 步骤 4: 开始同步至面板");
-    let finalNotifyBodyParts = [];
-    let failedPanels = [];
-
-    for (const server of servers) {
-        $.info(`\n---------- 开始处理面板 [${server.ip}] ----------`);
-        const ql = new QinglongAPI(server.ip, server.port, server.clientId, server.clientSecret);
-        let panelResult = [`面板 [${ql.url}]`];
-
-        if (!(await ql.login())) {
-            failedPanels.push(server.ip);
-            panelResult.push("  - ❌ 登录失败，跳过此面板");
-            finalNotifyBodyParts.push(panelResult.join('\n'));
-            $.info(`---------- 面板 [${server.ip}] 处理完毕 ----------`);
-            continue;
-        }
-
-        const envsToUpdate = [];
-        const envsToAdd = [];
-        const unchangedEnvs = [];
-
-        for (const element of qlData) {
-            $.log(`  -> 正在检查变量 [${element.remarks}] (${element.name})`);
-            const response = await ql.getEnvs(element.name);
-            const existingEnv = response.data ? response.data.find(item => item.name === element.name) : null;
-
-            if (existingEnv) {
-                let diffs = [];
-                if (existingEnv.value !== element.value) diffs.push("值");
-                if (existingEnv.remarks !== element.remarks) diffs.push("备注");
-
-                if (diffs.length > 0) {
-                    $.log(`     - 发现差异: ${diffs.join('和')}不同。已加入更新列表。`);
-                    envsToUpdate.push({ ...element, id: existingEnv.id });
-                } else {
-                    $.log(`     - 值与备注均相同，无需操作。`);
-                    unchangedEnvs.push(element);
-                }
-            } else {
-                $.log(`     - 面板中不存在此变量，已加入新增列表。`);
-                envsToAdd.push(element);
-            }
-        }
-
-        // 执行更新和新增
-        if (envsToUpdate.length > 0) {
-            $.info(`  -> 检测到 ${envsToUpdate.length} 个变量需要更新...`);
-            for (const env of envsToUpdate) { await ql.updateEnv(env); }
-        }
-        if (envsToAdd.length > 0) {
-            $.info(`  -> 检测到 ${envsToAdd.length} 个变量需要新增...`);
-            await ql.addEnvs(envsToAdd);
-        }
-
-        // 构造当前面板的通知内容
-        if (envsToUpdate.length === 0 && envsToAdd.length === 0) {
-            if (unchangedEnvs.length > 0) {
-                panelResult.push(`  - ✅ 无需操作：所有 ${unchangedEnvs.length} 个变量均是最新状态。`);
-            } else {
-                panelResult.push(`  - ✅ 无需同步任何变量。`);
-            }
-        } else {
-            let summaryParts = [];
-            if (envsToUpdate.length > 0) summaryParts.push(`更新 ${envsToUpdate.length} 条`);
-            if (envsToAdd.length > 0) summaryParts.push(`新增 ${envsToAdd.length} 条`);
-            if (unchangedEnvs.length > 0) summaryParts.push(`${unchangedEnvs.length} 条已最新`);
-            panelResult.push(`  - ℹ️  ${summaryParts.join('，')}。`);
-        }
-
-        const updatedDetails = envsToUpdate.map(e => `  - 🔄[更新] ${e.remarks} (${e.name})`).join('\n');
-        const addedDetails = envsToAdd.map(e => `  - ➕[新增] ${e.remarks} (${e.name})`).join('\n');
-        const unchangedDetails = unchangedEnvs.map(e => `  - ✅[最新] ${e.remarks} (${e.name})`).join('\n');
-
-        const details = [updatedDetails, addedDetails, unchangedDetails].filter(Boolean).join('\n');
-        if (details) {
-            panelResult.push(details);
-        }
-
-        finalNotifyBodyParts.push(panelResult.join('\n'));
-        $.info(`---------- 面板 [${server.ip}] 处理完毕 ----------`);
-    }
-
-    // 5. 发送最终的汇总通知
-    $.info("\n==> 步骤 5: 构造并发送通知");
-
-    let notifySubtitle = '同步任务执行完毕';
-    let notifyBody = finalNotifyBodyParts.join('\n\n');
-
-    if (failedPanels.length > 0) {
-        notifyBody += `\n\n❌[失败面板]\n${failedPanels.join('\n')}`;
-    }
-
-    if ($.getdata("@ql.mute") !== "true") {
-        $.notify(title, notifySubtitle, notifyBody);
-    } else {
-        $.info("已开启静音模式，不发送通知。");
-    }
-
-})().catch((e) => $.error(e)).finally(() => $.done());
-
-
-/* prettier-ignore */
-// 以下是通用的跨平台脚本运行环境兼容库，由作者提供，无需修改。
-function ENV(){const isJSBox=typeof require=="function"&&typeof $jsbox!="undefined";return{isQX:typeof $task!=="undefined",isLoon:typeof $loon!=="undefined",isSurge:typeof $httpClient!=="undefined"&&typeof $utils!=="undefined",isBrowser:typeof document!=="undefined",isNode:typeof require=="function"&&!isJSBox,isJSBox,isRequest:typeof $request!=="undefined",isScriptable:typeof importModule!=="undefined",isShadowrocket:"undefined"!==typeof $rocket,isStash:"undefined"!==typeof $environment&&$environment["stash-version"],}}
-/* prettier-ignore */
-function HTTP(defaultOptions={baseURL:""}){const{isQX,isLoon,isSurge,isScriptable,isNode,isBrowser,isShadowrocket,isStash,}=ENV();const methods=["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"];const URL_REGEX=/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;function send(method,options){options=typeof options==="string"?{url:options}:options;const baseURL=defaultOptions.baseURL;if(baseURL&&!URL_REGEX.test(options.url||"")){options.url=baseURL?baseURL+options.url:options.url}if(options.body&&options.headers&&!options.headers["Content-Type"]){options.headers["Content-Type"]="application/x-www-form-urlencoded"}options={...defaultOptions,...options};const timeout=options.timeout;const events={...{onRequest:()=>{},onResponse:(resp)=>resp,onTimeout:()=>{},},...options.events,};events.onRequest(method,options);let worker;if(isQX){const qxOptions={...options};if(!qxOptions.opts){qxOptions.opts={}}Object.assign(qxOptions.opts,{hints:false});worker=$task.fetch({method,...qxOptions})}else if(isLoon||isSurge||isNode||isShadowrocket||isStash){worker=new Promise((resolve,reject)=>{const request=isNode?require("request"):$httpClient;request[method.toLowerCase()](options,(err,response,body)=>{if(err)reject(err);else resolve({statusCode:response.status||response.statusCode,headers:response.headers,body,})})})}else if(isScriptable){const request=new Request(options.url);request.method=method;request.headers=options.headers;request.body=options.body;worker=new Promise((resolve,reject)=>{request.loadString().then((body)=>{resolve({statusCode:request.response.statusCode,headers:request.response.headers,body,})}).catch((err)=>reject(err))})}else if(isBrowser){worker=new Promise((resolve,reject)=>{fetch(options.url,{method,headers:options.headers,body:options.body,}).then((response)=>response.json()).then((response)=>resolve({statusCode:response.status,headers:response.headers,body:response.data,})).catch(reject)})}let timeoutid;const timer=timeout?new Promise((_,reject)=>{timeoutid=setTimeout(()=>{events.onTimeout();return reject(`${method}URL:${options.url}exceeds the timeout ${timeout}ms`)},timeout)}):null;return(timer?Promise.race([timer,worker]).then((res)=>{clearTimeout(timeoutid);return res}):worker).then((resp)=>events.onResponse(resp))}const http={};methods.forEach((method)=>(http[method.toLowerCase()]=(options)=>send(method,options)));return http}
-/* prettier-ignore */
-function API(name="untitled",debug=false){const{isQX,isLoon,isSurge,isScriptable,isNode,isShadowrocket,isStash,}=ENV();return new(class{constructor(name,debug){this.name=name;this.debug=debug;this.http=HTTP();this.env=ENV();this.node=(()=>{if(isNode){const fs=require("fs");return{fs}}else{return null}})();this.initCache();const delay=(t,v)=>new Promise(function(resolve){setTimeout(resolve.bind(null,v),t)});Promise.prototype.delay=function(t){return this.then(function(v){return delay(t,v)})}}initCache(){if(isQX)this.cache=JSON.parse($prefs.valueForKey(this.name)||"{}");if(isLoon||isSurge)this.cache=JSON.parse($persistentStore.read(this.name)||"{}");if(isNode){let fpath="root.json";if(!this.node.fs.existsSync(fpath)){this.node.fs.writeFileSync(fpath,JSON.stringify({}),{flag:"wx"},(err)=>console.log(err))}this.root={};fpath=`${this.name}.json`;if(!this.node.fs.existsSync(fpath)){this.node.fs.writeFileSync(fpath,JSON.stringify({}),{flag:"wx"},(err)=>console.log(err));this.cache={}}else{this.cache=JSON.parse(this.node.fs.readFileSync(`${this.name}.json`))}}}persistCache(){const data=JSON.stringify(this.cache,null,2);if(isQX)$prefs.setValueForKey(data,this.name);if(isLoon||isSurge||isStash||isShadowrocket)$persistentStore.write(data,this.name);if(isNode){this.node.fs.writeFileSync(`${this.name}.json`,data,{flag:"w"},(err)=>console.log(err));this.node.fs.writeFileSync("root.json",JSON.stringify(this.root,null,2),{flag:"w"},(err)=>console.log(err))}}write(data,key){this.log(`SET ${key}`);if(key.indexOf("#")!==-1){key=key.substr(1);if(isLoon||isSurge||isStash||isShadowrocket){return $persistentStore.write(data,key)}if(isQX){return $prefs.setValueForKey(data,key)}if(isNode){this.root[key]=data}}else{this.cache[key]=data}this.persistCache()}read(key){if(key.indexOf("#")!==-1){key=key.substr(1);if(isLoon||isSurge||isStash||isShadowrocket){return $persistentStore.read(key)}if(isQX){return $prefs.valueForKey(key)}if(isNode){return this.root[key]}}else{return this.cache[key]}}delete(key){this.log(`DELETE ${key}`);if(key.indexOf("#")!==-1){key=key.substr(1);if(isLoon||isSurge||isStash||isShadowrocket){return $persistentStore.write(null,key)}if(isQX){return $prefs.removeValueForKey(key)}if(isNode){delete this.root[key]}}else{delete this.cache[key]}this.persistCache()}notify(title,subtitle="",content="",options={}){const openURL=options["open-url"];const mediaURL=options["media-url"];if(isQX)$notify(title,subtitle,content,options);if(isSurge){$notification.post(title,subtitle,content+`${mediaURL?"\n多媒体:"+mediaURL:""}`,{url:openURL})}if(isLoon||isStash||isShadowrocket){let opts={};if(openURL)opts["openUrl"]=openURL;if(mediaURL)opts["mediaUrl"]=mediaURL;if(JSON.stringify(opts)==="{}"){$notification.post(title,subtitle,content)}else{$notification.post(title,subtitle,content,opts)}}if(isNode||isScriptable){const content_=content+(openURL?`\n点击跳转:${openURL}`:"")+(mediaURL?`\n多媒体:${mediaURL}`:"");if(isJSBox){const push=require("push");push.schedule({title:title,body:(subtitle?subtitle+"\n":"")+content_,})}else{console.log(`${title}\n${subtitle}\n${content_}\n\n`)}}}log(msg){if(this.debug)console.log(`[${this.name}]LOG:${this.stringify(msg)}`)}info(msg){console.log(`[${this.name}]INFO:${this.stringify(msg)}`)}error(msg){console.log(`[${this.name}]ERROR:${this.stringify(msg)}`)}wait(millisec){return new Promise((resolve)=>setTimeout(resolve,millisec))}done(value={}){if(isQX||isLoon||isSurge||isStash||isShadowrocket){$done(value)}else if(isNode&&!isJSBox){if(typeof $context!=="undefined"){$context.headers=value.headers;$context.statusCode=value.statusCode;$context.body=value.body}}}stringify(obj_or_str){if(typeof obj_or_str==="string"||obj_or_str instanceof String)return obj_or_str;else try{return JSON.stringify(obj_or_str,null,2)}catch(err){return"[object Object]"}}})(name,debug)}
+// prettier-ignore
+//From xream's ObjectKeys2LowerCase
+function ObjectKeys2LowerCase(obj) { return !obj ? {} : Object.fromEntries(Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v])) };
+//From chavyleung's Env.js
+function Env(t, e) { class s { constructor(t) { this.env = t } send(t, e = "GET") { t = "string" == typeof t ? { url: t } : t; let s = this.get; return "POST" === e && (s = this.post), new Promise(((e, i) => { s.call(this, t, ((t, s, o) => { t ? i(t) : e(s) })) })) } get(t) { return this.send.call(this.env, t) } post(t) { return this.send.call(this.env, t, "POST") } } return new class { constructor(t, e) { this.logLevels = { debug: 0, info: 1, warn: 2, error: 3 }, this.logLevelPrefixs = { debug: "[DEBUG] ", info: "[INFO] ", warn: "[WARN] ", error: "[ERROR] " }, this.logLevel = "info", this.name = t, this.http = new s(this), this.data = null, this.dataFile = "box.dat", this.logs = [], this.isMute = !1, this.isNeedRewrite = !1, this.logSeparator = "\n", this.encoding = "utf-8", this.startTime = (new Date).getTime(), Object.assign(this, e), this.log("", `🔔${this.name}, 开始!`) } getEnv() { return "undefined" != typeof $environment && $environment["surge-version"] ? "Surge" : "undefined" != typeof $environment && $environment["stash-version"] ? "Stash" : "undefined" != typeof module && module.exports ? "Node.js" : "undefined" != typeof $task ? "Quantumult X" : "undefined" != typeof $loon ? "Loon" : "undefined" != typeof $rocket ? "Shadowrocket" : void 0 } isNode() { return "Node.js" === this.getEnv() } isQuanX() { return "Quantumult X" === this.getEnv() } isSurge() { return "Surge" === this.getEnv() } isLoon() { return "Loon" === this.getEnv() } isShadowrocket() { return "Shadowrocket" === this.getEnv() } isStash() { return "Stash" === this.getEnv() } toObj(t, e = null) { try { return JSON.parse(t) } catch { return e } } toStr(t, e = null, ...s) { try { return JSON.stringify(t, ...s) } catch { return e } } getjson(t, e) { let s = e; if (this.getdata(t)) try { s = JSON.parse(this.getdata(t)) } catch { } return s } setjson(t, e) { try { return this.setdata(JSON.stringify(t), e) } catch { return !1 } } getScript(t) { return new Promise((e => { this.get({ url: t }, ((t, s, i) => e(i))) })) } runScript(t, e) { return new Promise((s => { let i = this.getdata("@chavy_boxjs_userCfgs.httpapi"); i = i ? i.replace(/\n/g, "").trim() : i; let o = this.getdata("@chavy_boxjs_userCfgs.httpapi_timeout"); o = o ? 1 * o : 20, o = e && e.timeout ? e.timeout : o; const [r, a] = i.split("@"), n = { url: `http://${a}/v1/scripting/evaluate`, body: { script_text: t, mock_type: "cron", timeout: o }, headers: { "X-Key": r, Accept: "*/*" }, timeout: o }; this.post(n, ((t, e, i) => s(i))) })).catch((t => this.logErr(t))) } loaddata() { if (!this.isNode()) return {}; { this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path"); const t = this.path.resolve(this.dataFile), e = this.path.resolve(process.cwd(), this.dataFile), s = this.fs.existsSync(t), i = !s && this.fs.existsSync(e); if (!s && !i) return {}; { const i = s ? t : e; try { return JSON.parse(this.fs.readFileSync(i)) } catch (t) { return {} } } } } writedata() { if (this.isNode()) { this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path"); const t = this.path.resolve(this.dataFile), e = this.path.resolve(process.cwd(), this.dataFile), s = this.fs.existsSync(t), i = !s && this.fs.existsSync(e), o = JSON.stringify(this.data); s ? this.fs.writeFileSync(t, o) : i ? this.fs.writeFileSync(e, o) : this.fs.writeFileSync(t, o) } } lodash_get(t, e, s) { const i = e.replace(/\[(\d+)\]/g, ".$1").split("."); let o = t; for (const t of i) if (o = Object(o)[t], void 0 === o) return s; return o } lodash_set(t, e, s) { return Object(t) !== t || (Array.isArray(e) || (e = e.toString().match(/[^.[\]]+/g) || []), e.slice(0, -1).reduce(((t, s, i) => Object(t[s]) === t[s] ? t[s] : t[s] = Math.abs(e[i + 1]) >> 0 == +e[i + 1] ? [] : {}), t)[e[e.length - 1]] = s), t } getdata(t) { let e = this.getval(t); if (/^@/.test(t)) { const [, s, i] = /^@(.*?)\.(.*?)$/.exec(t), o = s ? this.getval(s) : ""; if (o) try { const t = JSON.parse(o); e = t ? this.lodash_get(t, i, "") : e } catch (t) { e = "" } } return e } setdata(t, e) { let s = !1; if (/^@/.test(e)) { const [, i, o] = /^@(.*?)\.(.*?)$/.exec(e), r = this.getval(i), a = i ? "null" === r ? null : r || "{}" : "{}"; try { const e = JSON.parse(a); this.lodash_set(e, o, t), s = this.setval(JSON.stringify(e), i) } catch (e) { const r = {}; this.lodash_set(r, o, t), s = this.setval(JSON.stringify(r), i) } } else s = this.setval(t, e); return s } getval(t) { switch (this.getEnv()) { case "Surge": case "Loon": case "Stash": case "Shadowrocket": return $persistentStore.read(t); case "Quantumult X": return $prefs.valueForKey(t); case "Node.js": return this.data = this.loaddata(), this.data[t]; default: return this.data && this.data[t] || null } } setval(t, e) { switch (this.getEnv()) { case "Surge": case "Loon": case "Stash": case "Shadowrocket": return $persistentStore.write(t, e); case "Quantumult X": return $prefs.setValueForKey(t, e); case "Node.js": return this.data = this.loaddata(), this.data[e] = t, this.writedata(), !0; default: return this.data && this.data[e] || null } } initGotEnv(t) { this.got = this.got ? this.got : require("got"), this.cktough = this.cktough ? this.cktough : require("tough-cookie"), this.ckjar = this.ckjar ? this.ckjar : new this.cktough.CookieJar, t && (t.headers = t.headers ? t.headers : {}, t && (t.headers = t.headers ? t.headers : {}, void 0 === t.headers.cookie && void 0 === t.headers.Cookie && void 0 === t.cookieJar && (t.cookieJar = this.ckjar))) } get(t, e = (() => { })) { switch (t.headers && (delete t.headers["Content-Type"], delete t.headers["Content-Length"], delete t.headers["content-type"], delete t.headers["content-length"]), t.params && (t.url += "?" + this.queryStr(t.params)), void 0 === t.followRedirect || t.followRedirect || ((this.isSurge() || this.isLoon()) && (t["auto-redirect"] = !1), this.isQuanX() && (t.opts ? t.opts.redirection = !1 : t.opts = { redirection: !1 })), this.getEnv()) { case "Surge": case "Loon": case "Stash": case "Shadowrocket": default: this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })), $httpClient.get(t, ((t, s, i) => { !t && s && (s.body = i, s.statusCode = s.status ? s.status : s.statusCode, s.status = s.statusCode), e(t, s, i) })); break; case "Quantumult X": this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, { hints: !1 })), $task.fetch(t).then((t => { const { statusCode: s, statusCode: i, headers: o, body: r, bodyBytes: a } = t; e(null, { status: s, statusCode: i, headers: o, body: r, bodyBytes: a }, r, a) }), (t => e(t && t.error || "UndefinedError"))); break; case "Node.js": let s = require("iconv-lite"); this.initGotEnv(t), this.got(t).on("redirect", ((t, e) => { try { if (t.headers["set-cookie"]) { const s = t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString(); s && this.ckjar.setCookieSync(s, null), e.cookieJar = this.ckjar } } catch (t) { this.logErr(t) } })).then((t => { const { statusCode: i, statusCode: o, headers: r, rawBody: a } = t, n = s.decode(a, this.encoding); e(null, { status: i, statusCode: o, headers: r, rawBody: a, body: n }, n) }), (t => { const { message: i, response: o } = t; e(i, o, o && s.decode(o.rawBody, this.encoding)) })); break } } post(t, e = (() => { })) { const s = t.method ? t.method.toLocaleLowerCase() : "post"; switch (t.body && t.headers && !t.headers["Content-Type"] && !t.headers["content-type"] && (t.headers["content-type"] = "application/x-www-form-urlencoded"), t.headers && (delete t.headers["Content-Length"], delete t.headers["content-length"]), void 0 === t.followRedirect || t.followRedirect || ((this.isSurge() || this.isLoon()) && (t["auto-redirect"] = !1), this.isQuanX() && (t.opts ? t.opts.redirection = !1 : t.opts = { redirection: !1 })), this.getEnv()) { case "Surge": case "Loon": case "Stash": case "Shadowrocket": default: this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })), $httpClient[s](t, ((t, s, i) => { !t && s && (s.body = i, s.statusCode = s.status ? s.status : s.statusCode, s.status = s.statusCode), e(t, s, i) })); break; case "Quantumult X": t.method = s, this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, { hints: !1 })), $task.fetch(t).then((t => { const { statusCode: s, statusCode: i, headers: o, body: r, bodyBytes: a } = t; e(null, { status: s, statusCode: i, headers: o, body: r, bodyBytes: a }, r, a) }), (t => e(t && t.error || "UndefinedError"))); break; case "Node.js": let i = require("iconv-lite"); this.initGotEnv(t); const { url: o, ...r } = t; this.got[s](o, r).then((t => { const { statusCode: s, statusCode: o, headers: r, rawBody: a } = t, n = i.decode(a, this.encoding); e(null, { status: s, statusCode: o, headers: r, rawBody: a, body: n }, n) }), (t => { const { message: s, response: o } = t; e(s, o, o && i.decode(o.rawBody, this.encoding)) })); break } } time(t, e = null) { const s = e ? new Date(e) : new Date; let i = { "M+": s.getMonth() + 1, "d+": s.getDate(), "H+": s.getHours(), "m+": s.getMinutes(), "s+": s.getSeconds(), "q+": Math.floor((s.getMonth() + 3) / 3), S: s.getMilliseconds() }; /(y+)/.test(t) && (t = t.replace(RegExp.$1, (s.getFullYear() + "").substr(4 - RegExp.$1.length))); for (let e in i) new RegExp("(" + e + ")").test(t) && (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? i[e] : ("00" + i[e]).substr(("" + i[e]).length))); return t } queryStr(t) { let e = ""; for (const s in t) { let i = t[s]; null != i && "" !== i && ("object" == typeof i && (i = JSON.stringify(i)), e += `${s}=${i}&`) } return e = e.substring(0, e.length - 1), e } msg(e = t, s = "", i = "", o = {}) { const r = t => { const { $open: e, $copy: s, $media: i, $mediaMime: o } = t; switch (typeof t) { case void 0: return t; case "string": switch (this.getEnv()) { case "Surge": case "Stash": default: return { url: t }; case "Loon": case "Shadowrocket": return t; case "Quantumult X": return { "open-url": t }; case "Node.js": return }case "object": switch (this.getEnv()) { case "Surge": case "Stash": case "Shadowrocket": default: { const r = {}; let a = t.openUrl || t.url || t["open-url"] || e; a && Object.assign(r, { action: "open-url", url: a }); let n = t["update-pasteboard"] || t.updatePasteboard || s; if (n && Object.assign(r, { action: "clipboard", text: n }), i) { let t, e, s; if (i.startsWith("http")) t = i; else if (i.startsWith("data:")) { const [t] = i.split(";"), [, o] = i.split(","); e = o, s = t.replace("data:", "") } else { e = i, s = (t => { const e = { JVBERi0: "application/pdf", R0lGODdh: "image/gif", R0lGODlh: "image/gif", iVBORw0KGgo: "image/png", "/9j/": "image/jpg" }; for (var s in e) if (0 === t.indexOf(s)) return e[s]; return null })(i) } Object.assign(r, { "media-url": t, "media-base64": e, "media-base64-mime": o ?? s }) } return Object.assign(r, { "auto-dismiss": t["auto-dismiss"], sound: t.sound }), r } case "Loon": { const s = {}; let o = t.openUrl || t.url || t["open-url"] || e; o && Object.assign(s, { openUrl: o }); let r = t.mediaUrl || t["media-url"]; return i?.startsWith("http") && (r = i), r && Object.assign(s, { mediaUrl: r }), console.log(JSON.stringify(s)), s } case "Quantumult X": { const o = {}; let r = t["open-url"] || t.url || t.openUrl || e; r && Object.assign(o, { "open-url": r }); let a = t["media-url"] || t.mediaUrl; i?.startsWith("http") && (a = i), a && Object.assign(o, { "media-url": a }); let n = t["update-pasteboard"] || t.updatePasteboard || s; return n && Object.assign(o, { "update-pasteboard": n }), console.log(JSON.stringify(o)), o } case "Node.js": return }default: return } }; if (!this.isMute) switch (this.getEnv()) { case "Surge": case "Loon": case "Stash": case "Shadowrocket": default: $notification.post(e, s, i, r(o)); break; case "Quantumult X": $notify(e, s, i, r(o)); break; case "Node.js": break }if (!this.isMuteLog) { let t = ["", "==============📣系统通知📣=============="]; t.push(e), s && t.push(s), i && t.push(i), console.log(t.join("\n")), this.logs = this.logs.concat(t) } } debug(...t) { this.logLevels[this.logLevel] <= this.logLevels.debug && (t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(`${this.logLevelPrefixs.debug}${t.map((t => t ?? String(t))).join(this.logSeparator)}`)) } info(...t) { this.logLevels[this.logLevel] <= this.logLevels.info && (t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(`${this.logLevelPrefixs.info}${t.map((t => t ?? String(t))).join(this.logSeparator)}`)) } warn(...t) { this.logLevels[this.logLevel] <= this.logLevels.warn && (t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(`${this.logLevelPrefixs.warn}${t.map((t => t ?? String(t))).join(this.logSeparator)}`)) } error(...t) { this.logLevels[this.logLevel] <= this.logLevels.error && (t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(`${this.logLevelPrefixs.error}${t.map((t => t ?? String(t))).join(this.logSeparator)}`)) } log(...t) { t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(t.map((t => t ?? String(t))).join(this.logSeparator)) } logErr(t, e) { switch (this.getEnv()) { case "Surge": case "Loon": case "Stash": case "Shadowrocket": case "Quantumult X": default: this.log("", `❗️${this.name}, 错误!`, e, t); break; case "Node.js": this.log("", `❗️${this.name}, 错误!`, e, void 0 !== t.message ? t.message : t, t.stack); break } } wait(t) { return new Promise((e => setTimeout(e, t))) } done(t = {}) { const e = ((new Date).getTime() - this.startTime) / 1e3; switch (this.log("", `🔔${this.name}, 结束! 🕛 ${e} 秒`), this.log(), this.getEnv()) { case "Surge": case "Loon": case "Stash": case "Shadowrocket": case "Quantumult X": default: $done(t); break; case "Node.js": process.exit(1) } } }(t, e) }

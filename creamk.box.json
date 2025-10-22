@@ -251,85 +251,69 @@
               ]
       },
       {
-        "id": "boxjs_to_ql",
-        "name": "boxjs同步ql",
-        "repo": "https://github.com/CreamK/Scripts",
-        "keys": [
-          "@ql.mute",
-          "@ql.sync_env__key",
-          "@ql.ip",
-          "@ql.port",
-          "@ql.client_id",
-          "@ql.client_secret"
-        ],
-        "settings": [
-          {
-            "id": "@ql.mute",
-            "name": "静音通知",
-            "val": false,
-            "type": "boolean",
-            "desc": "同步完成后，是否关闭系统通知。"
-          },
-          {
-            "id": "@ql.sync_env__key",
-            "name": "同步环境变量规则",
-            "val": "",
-            "type": "textarea",
-            "autoGrow": true,
-            "rows": 5,
-            "placeholder": "boxjs变量名#ql变量名#ql备注\n-boxjs变量名#ql变量名#ql备注 (禁用)",
-            "desc": "定义需要同步的变量规则，每行一条。行首加'-'可禁用该条规则。"
-          },
-          {
-            "id": "@ql.ip",
-            "name": "青龙面板 IP 地址",
-            "val": "",
-            "type": "textarea",
-            "autoGrow": true,
-            "rows": 2,
-            "placeholder": "例如: 192.168.1.10@192.168.1.11或者http://192.168.1.10@http://192.168.1.11",
-            "desc": "支持多个IP，用'@'分隔。"
-          },
-          {
-            "id": "@ql.port",
-            "name": "青龙面板端口",
-            "val": "",
-            "type": "textarea",
-            "autoGrow": true,
-            "rows": 1,
-            "placeholder": "通用则填一个: 5700\n独立则填多个: 5700@5701",
-            "desc": "如果通用，只需填写一个。如果独立，用'@'分隔并与IP顺序对应。"
-          },
-          {
-            "id": "@ql.client_id",
-            "name": "青龙面板 Client ID",
-            "val": "",
-            "type": "textarea",
-            "autoGrow": true,
-            "rows": 1,
-            "placeholder": "通用则填一个: a1b2c3d4\n独立则填多个: a1b2c3d4@e5f6g7h8",
-            "desc": "如果通用，只需填写一个。如果独立，用'@'分隔并与IP顺序对应。"
-          },
-          {
-            "id": "@ql.client_secret",
-            "name": "青龙面板 Client Secret",
-            "val": "",
-            "type": "textarea",
-            "autoGrow": true,
-            "rows": 1,
-            "placeholder": "通用则填一个: x1y2z3\n独立则填多个: x1y2z3@w4v5u6",
-            "desc": "如果通用，只需填写一个。如果独立，用'@'分隔并与IP顺序对应。"
-          }
-        ],
-        "scripts": [
-          {
-            "name": "同步变量",
-            "script": "https://raw.githubusercontent.com/CreamK/script/master/script/boxjs_to_ql.js"
-          }
-        ]
-      }
-      
-  
+            "id": "boxjs_to_ql",
+            "name": "boxjs同步变量到青龙面板",
+            "author": "@CreamK",
+            "repo": "",
+            "icons": [
+                "https://qn.whyour.cn/logo.png",
+                "https://qn.whyour.cn/logo.png"
+            ],
+            "keys": [
+                "@CreamK_QL.ckName","CreamK_QL","yuheng_ql_token"
+            ],
+            "scripts": [
+                {
+                    "name": "同步变量到青龙(填写ckName，保存，执行)",
+                    "script": "https://raw.githubusercontent.com/Sliverkiss/GoodNight/refs/heads/master/Script/qlSync.js"
+                }
+            ],
+            "settings": [
+                {
+                    "id": "@CreamK_QL.ckName",
+                    "name": "需要上传的变量名",
+                    "val": "",
+                    "type": "text",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入需要上传的变量名，如bwcj_data"
+                },{
+                    "id": "@CreamK_QL.qlCkName",
+                    "name": "上传后的变量名",
+                    "val": "",
+                    "type": "text",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入需要上传的变量名，如bwcj_data"
+                },{
+                    "id": "@CreamK_QL.host",
+                    "name": "青龙服务器地址",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入服务器地址，不包括/，如http://127.0.0.1:5700"
+                },
+                {
+                    "id": "@CreamK_QL.clientId",
+                    "name": "clientId",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入青龙应用的clientId"
+                },
+                {
+                    "id": "@CreamK_QL.secret",
+                    "name": "secret",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入青龙应用的secret"
+                }
+            ]
+        }
     ]
   }
   
