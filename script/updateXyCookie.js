@@ -83,7 +83,7 @@ async function updateCookie() {
             'Referer': `${autoReply_url}/admin`,
             'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36'
       }
-      const body=`{"id":"${account_id}","value":"${xianyu_cookie}"}`
+      const body=`{"id":"${account_id}","value":"${xianyu_cookie}","username": "","password": ""}`
       $.post(
         { url, method: 'PUT', headers: headers, body, timeout: 2000 },
         (err, resp, data) => {
