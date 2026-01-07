@@ -313,6 +313,124 @@
                     "desc": "填入青龙应用的secret"
                 }
             ]
+        },
+        {
+            "id": "hrtck_to_ql",
+            "name": "同步华润系列变量到QL",
+            "author": "@CreamK",
+            "repo": "",
+            "icons": [
+                "https://raw.githubusercontent.com/CreamK/script/master/icon/hrt.png",
+                "https://raw.githubusercontent.com/CreamK/script/master/icon/hrt.png"
+            ],
+            "keys": [
+                "@CreamK_QL.ckName","CreamK_QL","yuheng_ql_token"
+            ],
+            "scripts": [
+                {
+                    "name": "春茧未来荟变量同步到青龙",
+                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/cjwlh_ql.js"
+                },
+                {
+                    "name": "九九九变量同步到青龙",
+                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/jjj_ql.js"
+                },
+                {
+                    "name": "ole超市变量同步到青龙",
+                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ole_ql.js"
+                },
+                {
+                    "name": "文体未来荟变量同步到青龙",
+                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/wtwlh_ql.js"
+                },
+                {
+                    "name": "一点万象变量同步到青龙",
+                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ydwx_ql.js"
+                }
+
+            ],
+            "settings": [
+                {
+                    "id": "@CreamK_QL.qlCkName",
+                    "name": "上传后的变量名",
+                    "val": "",
+                    "type": "text",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入需要上传的变量名，如bwcj_data"
+                },{
+                    "id": "@CreamK_QL.host",
+                    "name": "青龙服务器地址",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入服务器地址，不包括/，如http://127.0.0.1:5700"
+                },
+                {
+                    "id": "@CreamK_QL.clientId",
+                    "name": "clientId",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入青龙应用的clientId"
+                },
+                {
+                    "id": "@CreamK_QL.secret",
+                    "name": "secret",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "填入青龙应用的secret"
+                },
+                {
+                    "id": "@CreamK_QL.cjwlhck",
+                    "name": "cjwlhck",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "春茧未来荟变量"
+                },
+                {
+                    "id": "@CreamK_QL.jjjck",
+                    "name": "jjjck",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "九九九变量"
+                },
+                {
+                    "id": "@CreamK_QL.oleck",
+                    "name": "oleck",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "ole超市变量"
+                },
+                {
+                    "id": "@CreamK_QL.wtwlhck",
+                    "name": "wtwlhck",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "文体未来荟变量"
+                },
+                {
+                    "id": "@CreamK_QL.ydwxck",
+                    "name": "ydwxck",
+                    "val": "",
+                    "type": "textarea",
+                    "autoGrow": true,
+                    "rows": 1,
+                    "desc": "一点万象变量"
+                }
+            ]
         }
     ]
   }
