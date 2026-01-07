@@ -19,20 +19,16 @@ let taskName = 'test'; // 定时任务名称
 
 const needBoxJS = $.getData('id77_ql_flag');
 if (needBoxJS === 'true') {
-    creamk_nwql_flag=$.getData('creamk_nwql_flag')
-    qlAddrs_nw =[]
-    if (creamk_nwql_flag==='true'){
-        qlAddrs_nw = $.getData('creamk_ql_addrs_nw')?.split('@') ?? []; // 青龙面板地址
+    creamk_fixed_flag=$.getData('creamk_fixed_flag')
+    qlAddrs_fixed =[]
+    if (creamk_fixed_flag==='true'){
+        qlAddrs_fixed = $.getData('creamk_ql_addrs_fixed')?.split('@') ?? []; // 青龙面板地址
     }
-    creamk_gwql_flag=$.getData('creamk_gwql_flag')
-    qlAddrs_gw =[]
-    if (creamk_gwql_flag==='true'){
-        qlAddrs_gw = $.getData('creamk_ql_addrs_gw')?.split('@') ?? []; // 青龙面板地址
-    }
-    creamk_lshql_flag=$.getData('creamk_lshql_flag')
-    qlAddrs_lsh =[]
-    if (creamk_lshql_flag==='true'){
-        qlAddrs_lsh = $.getData('creamk_ql_addrs_lsh')?.split('@') ?? []; // 青龙面板地址
+   
+    creamk_tmp_flag=$.getData('creamk_tmp_flag')
+    qlAddrs_tmp =[]
+    if (creamk_tmp_flag==='true'){
+        qlAddrs_tmp = $.getData('creamk_ql_addrs_tmp')?.split('@') ?? []; // 青龙面板地址
     }
 
   port = $.getData('id77_ql_port'); // 青龙端口
@@ -42,11 +38,11 @@ if (needBoxJS === 'true') {
   schedule = $.getData('id77_ql_schedule'); // 定时时间
   taskName = $.getData('id77_ql_taskName'); // 定时任务名称
 
-  if (qlAddrs_gw.length) {
-    qlAddrs = [...qlAddrs_nw, ...qlAddrs_gw].filter((item) => !!item);
+  if (qlAddrs_fixed.length) {
+    qlAddrs = [...qlAddrs_fixed].filter((item) => !!item);
   }
-  if (qlAddrs_lsh.length) {
-    qlAddrs = [...qlAddrs, ...qlAddrs_lsh].filter((item) => !!item);
+  if (qlAddrs_tmp.length) {
+    qlAddrs = [...qlAddrs, ...qlAddrs_tmp].filter((item) => !!item);
   }
 }
 
