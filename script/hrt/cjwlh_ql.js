@@ -12,7 +12,7 @@ $.host = $.arguments?.host || "";
 $.clientId = $.arguments?.clientId || "";
 $.secret = $.arguments?.secret || "";
 $.ckName = $.arguments?.ckName || "";
-$.qlCkName="cjwlhck";
+$.qlCkName="cjwlh";
 
 
 //主程序执行入口

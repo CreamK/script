@@ -365,7 +365,7 @@
                     "name": "cjwlhck",
                     "val": "",
                     "type": "textarea",
-                    "autoGrow": true,
+                    "autoGrow": false,
                     "rows": 1,
                     "desc": "春茧未来荟变量"
                 },
@@ -374,7 +374,7 @@
                     "name": "jjjck",
                     "val": "",
                     "type": "textarea",
-                    "autoGrow": true,
+                    "autoGrow": false,
                     "rows": 1,
                     "desc": "九九九变量"
                 },
@@ -383,25 +383,25 @@
                     "name": "oleck",
                     "val": "",
                     "type": "textarea",
-                    "autoGrow": true,
+                    "autoGrow": false,
                     "rows": 1,
                     "desc": "ole超市变量"
                 },
                 {
-                    "id": "wtwlhck",
-                    "name": "wtwlhck",
+                    "id": "wtwlh",
+                    "name": "wtwlh",
                     "val": "",
                     "type": "textarea",
-                    "autoGrow": true,
+                    "autoGrow": false,
                     "rows": 1,
                     "desc": "文体未来荟变量"
                 },
                 {
-                    "id": "ydwxck",
-                    "name": "ydwxck",
+                    "id": "Ydwx",
+                    "name": "Ydwx",
                     "val": "",
                     "type": "textarea",
-                    "autoGrow": true,
+                    "autoGrow": false,
                     "rows": 1,
                     "desc": "一点万象变量"
                 }
