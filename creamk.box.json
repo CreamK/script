@@ -14,12 +14,10 @@
               "creamk_src_fileName",
               "creamk_des_fileName",
               "id77_ql_flag",
-              "creamk_nwql_flag",
-              "creamk_ql_addrs_nw",
-              "creamk_gwql_flag",
-              "creamk_ql_addrs_gw",
-              "creamk_lshql_flag",
-              "creamk_ql_addrs_lsh",
+              "creamk_fixed_flag",
+              "creamk_ql_addrs_fixed",
+              "creamk_tmp_flag",
+              "creamk_ql_addrs_tmp",
               "id77_ql_port",
               "id77_ql_clientId",
               "id77_ql_clientSecret",
@@ -58,14 +56,14 @@
                   "type": "text"
                 },
                 {
-                  "id": "creamk_nwql_flag",
-                  "name": "启用内网青龙",
+                  "id": "creamk_fixed_flag",
+                  "name": "启用固定青龙",
                   "val": true,
                   "type": "boolean"
                 },
                 {
-                  "id": "creamk_ql_addrs_nw",
-                  "name": "青龙域名或IP(内网)",
+                  "id": "creamk_ql_addrs_fixed",
+                  "name": "青龙域名或IP",
                   "val": "",
                   "type": "textarea",
                   "autoGrow": true,
@@ -73,28 +71,13 @@
                   "placeholder": "192.168.2.1@192.168.2.2"
                 },
                 {
-                  "id": "creamk_gwql_flag",
-                  "name": "启用公网青龙",
-                  "val": true,
-                  "type": "boolean"
-                },
-                {
-                  "id": "creamk_ql_addrs_gw",
-                  "name": "青龙域名或IP(公网)",
-                  "val": "",
-                  "type": "textarea",
-                  "autoGrow": true,
-                  "rows": 2,
-                  "placeholder": "192.168.2.1@192.168.2.2"
-                },
-                {
-                  "id": "creamk_lshql_flag",
+                  "id": "creamk_tmp_flag",
                   "name": "启用临时青龙",
                   "val": true,
                   "type": "boolean"
                 },
                 {
-                  "id": "creamk_ql_addrs_lsh",
+                  "id": "creamk_ql_addrs_tmp",
                   "name": "青龙域名或IP(临时)",
                   "val": "",
                   "type": "textarea",
@@ -324,7 +307,7 @@
                 "https://raw.githubusercontent.com/CreamK/script/master/icon/hrt.png"
             ],
             "keys": [
-                "@CreamK_QL.ckName","CreamK_QL","yuheng_ql_token"
+                "@CreamK_QL.host","@CreamK_QL.clientId","@CreamK_QL.secret","cjwlhck","jjjck","oleck","wtwlhck","ydwxck"
             ],
             "scripts": [
                 {
@@ -351,14 +334,6 @@
             ],
             "settings": [
                 {
-                    "id": "@CreamK_QL.qlCkName",
-                    "name": "上传后的变量名",
-                    "val": "",
-                    "type": "text",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入需要上传的变量名，如bwcj_data"
-                },{
                     "id": "@CreamK_QL.host",
                     "name": "青龙服务器地址",
                     "val": "",
@@ -386,7 +361,7 @@
                     "desc": "填入青龙应用的secret"
                 },
                 {
-                    "id": "@CreamK_QL.cjwlhck",
+                    "id": "cjwlhck",
                     "name": "cjwlhck",
                     "val": "",
                     "type": "textarea",
@@ -395,7 +370,7 @@
                     "desc": "春茧未来荟变量"
                 },
                 {
-                    "id": "@CreamK_QL.jjjck",
+                    "id": "jjjck",
                     "name": "jjjck",
                     "val": "",
                     "type": "textarea",
@@ -404,7 +379,7 @@
                     "desc": "九九九变量"
                 },
                 {
-                    "id": "@CreamK_QL.oleck",
+                    "id": "oleck",
                     "name": "oleck",
                     "val": "",
                     "type": "textarea",
@@ -413,7 +388,7 @@
                     "desc": "ole超市变量"
                 },
                 {
-                    "id": "@CreamK_QL.wtwlhck",
+                    "id": "wtwlhck",
                     "name": "wtwlhck",
                     "val": "",
                     "type": "textarea",
@@ -422,7 +397,7 @@
                     "desc": "文体未来荟变量"
                 },
                 {
-                    "id": "@CreamK_QL.ydwxck",
+                    "id": "ydwxck",
                     "name": "ydwxck",
                     "val": "",
                     "type": "textarea",
