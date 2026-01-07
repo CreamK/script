@@ -1,412 +1,435 @@
 {
-    "id": "CreamK.app.sub",
-    "name": "CreamK脚本订阅",
-    "author": "@CreamK",
-    "icon": "https://avatars.githubusercontent.com/u/51256470",
-    "repo": "https://github.com/CreamK/Scripts",
-    "apps": [
-      {
-            "id": "QX_FILE",
-            "name": "青龙上传文件",
-            "keys": [
-
-              "creamk_fileName",
-              "creamk_src_fileName",
-              "creamk_des_fileName",
-              "id77_ql_flag",
-              "creamk_fixed_flag",
-              "creamk_ql_addrs_fixed",
-              "creamk_tmp_flag",
-              "creamk_ql_addrs_tmp",
-              "id77_ql_port",
-              "id77_ql_clientId",
-              "id77_ql_clientSecret",
-              "id77_ql_fileName",
-              "id77_ql_schedule",
-              "id77_ql_taskName",
-              "id77_deviceName"
-
-            ],
-            "settings": [
-              {
-                  "id": "id77_ql_flag",
-                  "name": "启用",
-                  "val": false,
-                  "type": "boolean",
-                  "desc": "使用BoxJS数据"
-                },
-                {
-                  "id": "id77_ql_fileName",
-                  "name": "本地文件名",
-                  "val": "",
-                  "type": "text",
-                  "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
-                },
-                {
-                  "id": "id77_ql_schedule",
-                  "name": "任务定时",
-                  "val": "",
-                  "type": "text",
-                  "placeholder": "cron 格式"
-                },
-                {
-                  "id": "id77_ql_taskName",
-                  "name": "任务名",
-                  "val": "",
-                  "type": "text"
-                },
-                {
-                  "id": "creamk_fixed_flag",
-                  "name": "启用固定青龙",
-                  "val": true,
-                  "type": "boolean"
-                },
-                {
-                  "id": "creamk_ql_addrs_fixed",
-                  "name": "青龙域名或IP",
-                  "val": "",
-                  "type": "textarea",
-                  "autoGrow": true,
-                  "rows": 2,
-                  "placeholder": "192.168.2.1@192.168.2.2"
-                },
-                {
-                  "id": "creamk_tmp_flag",
-                  "name": "启用临时青龙",
-                  "val": true,
-                  "type": "boolean"
-                },
-                {
-                  "id": "creamk_ql_addrs_tmp",
-                  "name": "青龙域名或IP(临时)",
-                  "val": "",
-                  "type": "textarea",
-                  "autoGrow": true,
-                  "rows": 2,
-                  "placeholder": "192.168.2.1@192.168.2.2"
-                },
-                {
-                  "id": "id77_ql_port",
-                  "name": "青龙端口",
-                  "val": "",
-                  "type": "number"
-                },
-                {
-                  "id": "id77_ql_clientId",
-                  "name": "青龙 Client Id",
-                  "val": "",
-                  "type": "text"
-                },
-                {
-                  "id": "id77_ql_clientSecret",
-                  "name": "青龙 Client Secret",
-                  "val": "",
-                  "type": "text"
-                },
-                {
-                "id": "id77_des_fileName",
-                "name": "目的文件名",
-                "val": "",
-                "type": "text",
-                "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
-                }
-            ],
-            "author": "@creamk",
-            "scripts": [
-              {
-                "name": "迁移文件数据",
-                "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/migrationFileData.js"
-              },
-              {
-                "name": "本机数据写入任务📁",
-                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/dataToTaskFile.js"
-              },
-              {
-                "name": "上传文件设置任务🐉",
-                "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_task.js"
-              },
-              {
-                "name": "删除任务🐉",
-                "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_delTask.js"
-              },
-              {
-                "name": "清理任务文件的数据📁",
-                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/clearTaskFileData.js"
-              },
-              {
-                "name": "清除本机数据🔴",
-                "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/delMitmData.js"
-              }
-            ],
-            "descs_html": [
-              "☁️<a target=\"_blank\" href=\"shareddocuments://\">前往iCloud</a>"
-            ],
-            "icons": [
-              "https://qn.whyour.cn/logo.png",
-              "https://qn.whyour.cn/logo.png"
-            ]
-     },
-     {
-        "id": "xmSports",
-        "name": "小米运动",
-        "keys": ["xmAccountNumbers","xmCurrentAccount","xmMinStep", "xmMaxStep","xmSportsToken", "xmSportsToken2", "xmSportsToken3", "xmSportsToken4", "xmSportsToken5"],
-        "settings": [
-          {
-            "id": "xmAccountNumbers",
-            "name": "账户数量",
-            "val": "",
-            "type": "number"
-          },
-          {
-            "id": "xmCurrentAccount",
-            "name": "当前账户",
-            "val": "",
-            "type": "number"
-          },
-          {
-            "id": "xmMinStep",
-            "name": "最小步数",
-            "val": "",
-            "type": "number"
-          },
-          {
-           "id": "xmMaxStep",
-            "name": "最大步数",
-            "val": "",
-            "type": "number"
-          }
-        ],
-        "script": "https://raw.githubusercontent.com/CreamK/script/script/xmyd.js",
-        "author": "@CreamK",
-        "repo": "https://raw.githubusercontent.com/CreamK/script/script/xmyd.js",
-        "icons": [
-          "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png",
-          "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png"
-              ]
-      },
-      {
-        "id": "updateXyCookie",
-        "name": "更新闲鱼Cookie",
-        "keys": ["autoReply_url","autoReply_account_id","autoReply_xianyu_cookie", "autoReply_username","autoReply_password"],
-        "settings": [
-          {
-            "id": "autoReply_url",
-            "name": "自动回复网页地址",
-            "val": "",
-            "type": "text"
-          },
-          {
-            "id": "autoReply_account_id",
-            "name": "闲鱼账户ID",
-            "val": "",
-            "type": "text"
-          },
-          {
-            "id": "autoReply_xianyu_cookie",
-            "name": "闲鱼cookie",
-            "val": "",
-            "type": "text"
-          },
-          {
-           "id": "autoReply_username",
-            "name": "网页账户",
-            "val": "",
-            "type": "text"
-          },
-          {
-           "id": "autoReply_password",
-            "name": "网页密码",
-            "val": "",
-            "type": "text"
-          }
-        ],
-        "scripts": [
-            {
-              "name": "自动更新闲鱼cookie",
-              "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/updateXyCookie.js"
-            }
-        ],
-        "author": "@CreamK",
-        "repo": "https://github.com/CreamK/Scripts",
-        "icons": [
-          "https://raw.githubusercontent.com/CreamK/script/master/icon/xianyu.jpg",
-          "https://raw.githubusercontent.com/CreamK/script/master/icon/xianyu.jpg"
-              ]
-      },
-      {
-            "id": "boxjs_to_ql",
-            "name": "boxjs同步变量到青龙面板",
-            "author": "@CreamK",
-            "repo": "",
-            "icons": [
-                "https://qn.whyour.cn/logo.png",
-                "https://qn.whyour.cn/logo.png"
-            ],
-            "keys": [
-                "@CreamK_QL.ckName","CreamK_QL","yuheng_ql_token"
-            ],
-            "scripts": [
-                {
-                    "name": "同步变量到青龙(填写ckName，保存，执行)",
-                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/boxjs_to_ql.js"
-                }
-            ],
-            "settings": [
-                {
-                    "id": "@CreamK_QL.ckName",
-                    "name": "需要上传的变量名",
-                    "val": "",
-                    "type": "text",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入需要上传的变量名，如bwcj_data"
-                },{
-                    "id": "@CreamK_QL.qlCkName",
-                    "name": "上传后的变量名",
-                    "val": "",
-                    "type": "text",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入需要上传的变量名，如bwcj_data"
-                },{
-                    "id": "@CreamK_QL.host",
-                    "name": "青龙服务器地址",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入服务器地址，不包括/，如http://127.0.0.1:5700"
-                },
-                {
-                    "id": "@CreamK_QL.clientId",
-                    "name": "clientId",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入青龙应用的clientId"
-                },
-                {
-                    "id": "@CreamK_QL.secret",
-                    "name": "secret",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入青龙应用的secret"
-                }
-            ]
+  "id": "CreamK.app.sub",
+  "name": "CreamK脚本订阅",
+  "author": "@CreamK",
+  "icon": "https://avatars.githubusercontent.com/u/51256470",
+  "repo": "https://github.com/CreamK/Scripts",
+  "apps": [
+    {
+      "id": "QX_FILE",
+      "name": "青龙上传文件",
+      "keys": [
+        "creamk_fileName",
+        "creamk_src_fileName",
+        "creamk_des_fileName",
+        "id77_ql_flag",
+        "creamk_fixed_flag",
+        "creamk_ql_addrs_fixed",
+        "creamk_tmp_flag",
+        "creamk_ql_addrs_tmp",
+        "id77_ql_port",
+        "id77_ql_clientId",
+        "id77_ql_clientSecret",
+        "id77_ql_fileName",
+        "id77_ql_schedule",
+        "id77_ql_taskName",
+        "id77_deviceName"
+      ],
+      "settings": [
+        {
+          "id": "id77_ql_flag",
+          "name": "启用",
+          "val": false,
+          "type": "boolean",
+          "desc": "使用BoxJS数据"
         },
         {
-            "id": "hrtck_to_ql",
-            "name": "同步华润系列变量到QL",
-            "author": "@CreamK",
-            "repo": "",
-            "icons": [
-                "https://raw.githubusercontent.com/CreamK/script/master/icon/hrt.png",
-                "https://raw.githubusercontent.com/CreamK/script/master/icon/hrt.png"
-            ],
-            "keys": [
-                "@CreamK_QL.host","@CreamK_QL.clientId","@CreamK_QL.secret","cjwlhck","jjjck","oleck","wtwlhck","ydwxck"
-            ],
-            "scripts": [
-                {
-                    "name": "春茧未来荟变量同步到青龙",
-                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/cjwlh_ql.js"
-                },
-                {
-                    "name": "九九九变量同步到青龙",
-                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/jjj_ql.js"
-                },
-                {
-                    "name": "ole超市变量同步到青龙",
-                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ole_ql.js"
-                },
-                {
-                    "name": "文体未来荟变量同步到青龙",
-                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/wtwlh_ql.js"
-                },
-                {
-                    "name": "一点万象变量同步到青龙",
-                    "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ydwx_ql.js"
-                }
-
-            ],
-            "settings": [
-                {
-                    "id": "@CreamK_QL.host",
-                    "name": "青龙服务器地址",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入服务器地址，不包括/，如http://127.0.0.1:5700"
-                },
-                {
-                    "id": "@CreamK_QL.clientId",
-                    "name": "clientId",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入青龙应用的clientId"
-                },
-                {
-                    "id": "@CreamK_QL.secret",
-                    "name": "secret",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": true,
-                    "rows": 1,
-                    "desc": "填入青龙应用的secret"
-                },
-                {
-                    "id": "cjwlhck",
-                    "name": "cjwlhck",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": false,
-                    "rows": 1,
-                    "desc": "春茧未来荟变量"
-                },
-                {
-                    "id": "jjjck",
-                    "name": "jjjck",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": false,
-                    "rows": 1,
-                    "desc": "九九九变量"
-                },
-                {
-                    "id": "oleck",
-                    "name": "oleck",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": false,
-                    "rows": 1,
-                    "desc": "ole超市变量"
-                },
-                {
-                    "id": "wtwlh",
-                    "name": "wtwlh",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": false,
-                    "rows": 1,
-                    "desc": "文体未来荟变量"
-                },
-                {
-                    "id": "Ydwx",
-                    "name": "Ydwx",
-                    "val": "",
-                    "type": "textarea",
-                    "autoGrow": false,
-                    "rows": 1,
-                    "desc": "一点万象变量"
-                }
-            ]
+          "id": "id77_ql_fileName",
+          "name": "本地文件名",
+          "val": "",
+          "type": "text",
+          "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
+        },
+        {
+          "id": "id77_ql_schedule",
+          "name": "任务定时",
+          "val": "",
+          "type": "text",
+          "placeholder": "cron 格式"
+        },
+        {
+          "id": "id77_ql_taskName",
+          "name": "任务名",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "creamk_fixed_flag",
+          "name": "启用固定青龙",
+          "val": true,
+          "type": "boolean"
+        },
+        {
+          "id": "creamk_ql_addrs_fixed",
+          "name": "青龙域名或IP",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": true,
+          "rows": 2,
+          "placeholder": "192.168.2.1@192.168.2.2"
+        },
+        {
+          "id": "creamk_tmp_flag",
+          "name": "启用临时青龙",
+          "val": true,
+          "type": "boolean"
+        },
+        {
+          "id": "creamk_ql_addrs_tmp",
+          "name": "青龙域名或IP(临时)",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": true,
+          "rows": 2,
+          "placeholder": "192.168.2.1@192.168.2.2"
+        },
+        {
+          "id": "id77_ql_port",
+          "name": "青龙端口",
+          "val": "",
+          "type": "number"
+        },
+        {
+          "id": "id77_ql_clientId",
+          "name": "青龙 Client Id",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "id77_ql_clientSecret",
+          "name": "青龙 Client Secret",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "id77_des_fileName",
+          "name": "目的文件名",
+          "val": "",
+          "type": "text",
+          "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
         }
-    ]
-  }
-  
+      ],
+      "author": "@creamk",
+      "scripts": [
+        {
+          "name": "迁移文件数据",
+          "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/migrationFileData.js"
+        },
+        {
+          "name": "本机数据写入任务📁",
+          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/dataToTaskFile.js"
+        },
+        {
+          "name": "上传文件设置任务🐉",
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_task.js"
+        },
+        {
+          "name": "删除任务🐉",
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_delTask.js"
+        },
+        {
+          "name": "清理任务文件的数据📁",
+          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/clearTaskFileData.js"
+        },
+        {
+          "name": "清除本机数据🔴",
+          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/delMitmData.js"
+        }
+      ],
+      "descs_html": [
+        "☁️<a target=\"_blank\" href=\"shareddocuments://\">前往iCloud</a>"
+      ],
+      "icons": [
+        "https://qn.whyour.cn/logo.png",
+        "https://qn.whyour.cn/logo.png"
+      ]
+    },
+    {
+      "id": "xmSports",
+      "name": "小米运动",
+      "keys": [
+        "xmAccountNumbers",
+        "xmCurrentAccount",
+        "xmMinStep",
+        "xmMaxStep",
+        "xmSportsToken",
+        "xmSportsToken2",
+        "xmSportsToken3",
+        "xmSportsToken4",
+        "xmSportsToken5"
+      ],
+      "settings": [
+        {
+          "id": "xmAccountNumbers",
+          "name": "账户数量",
+          "val": "",
+          "type": "number"
+        },
+        {
+          "id": "xmCurrentAccount",
+          "name": "当前账户",
+          "val": "",
+          "type": "number"
+        },
+        {
+          "id": "xmMinStep",
+          "name": "最小步数",
+          "val": "",
+          "type": "number"
+        },
+        {
+          "id": "xmMaxStep",
+          "name": "最大步数",
+          "val": "",
+          "type": "number"
+        }
+      ],
+      "script": "https://raw.githubusercontent.com/CreamK/script/script/xmyd.js",
+      "author": "@CreamK",
+      "repo": "https://raw.githubusercontent.com/CreamK/script/script/xmyd.js",
+      "icons": [
+        "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png",
+        "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png"
+      ]
+    },
+    {
+      "id": "updateXyCookie",
+      "name": "更新闲鱼Cookie",
+      "keys": [
+        "autoReply_url",
+        "autoReply_account_id",
+        "autoReply_xianyu_cookie",
+        "autoReply_username",
+        "autoReply_password"
+      ],
+      "settings": [
+        {
+          "id": "autoReply_url",
+          "name": "自动回复网页地址",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "autoReply_account_id",
+          "name": "闲鱼账户ID",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "autoReply_xianyu_cookie",
+          "name": "闲鱼cookie",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "autoReply_username",
+          "name": "网页账户",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "autoReply_password",
+          "name": "网页密码",
+          "val": "",
+          "type": "text"
+        }
+      ],
+      "scripts": [
+        {
+          "name": "自动更新闲鱼cookie",
+          "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/updateXyCookie.js"
+        }
+      ],
+      "author": "@CreamK",
+      "repo": "https://github.com/CreamK/Scripts",
+      "icons": [
+        "https://raw.githubusercontent.com/CreamK/script/master/icon/xianyu.jpg",
+        "https://raw.githubusercontent.com/CreamK/script/master/icon/xianyu.jpg"
+      ]
+    },
+    {
+      "id": "boxjs_to_ql",
+      "name": "boxjs同步变量到青龙面板",
+      "author": "@CreamK",
+      "repo": "",
+      "icons": [
+        "https://raw.githubusercontent.com/CreamK/script/master/icon/sync.jpg",
+        "https://raw.githubusercontent.com/CreamK/script/master/icon/sync.jpg"
+      ],
+      "keys": [
+        "@CreamK_QL.ckName",
+        "CreamK_QL",
+        "yuheng_ql_token"
+      ],
+      "scripts": [
+        {
+          "name": "同步变量到青龙(填写ckName，保存，执行)",
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/boxjs_to_ql.js"
+        }
+      ],
+      "settings": [
+        {
+          "id": "@CreamK_QL.ckName",
+          "name": "需要上传的变量名",
+          "val": "",
+          "type": "text",
+          "autoGrow": true,
+          "rows": 1,
+          "desc": "填入需要上传的变量名，如bwcj_data"
+        },
+        {
+          "id": "@CreamK_QL.qlCkName",
+          "name": "上传后的变量名",
+          "val": "",
+          "type": "text",
+          "autoGrow": true,
+          "rows": 1,
+          "desc": "填入需要上传的变量名，如bwcj_data"
+        },
+        {
+          "id": "@CreamK_QL.host",
+          "name": "青龙服务器地址",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": true,
+          "rows": 1,
+          "desc": "填入服务器地址，不包括/，如http://127.0.0.1:5700"
+        },
+        {
+          "id": "@CreamK_QL.clientId",
+          "name": "clientId",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": true,
+          "rows": 1,
+          "desc": "填入青龙应用的clientId"
+        },
+        {
+          "id": "@CreamK_QL.secret",
+          "name": "secret",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": true,
+          "rows": 1,
+          "desc": "填入青龙应用的secret"
+        }
+      ]
+    },
+    {
+      "id": "hrtck_to_ql",
+      "name": "同步华润系列变量到QL",
+      "author": "@CreamK",
+      "repo": "",
+      "icons": [
+        "https://raw.githubusercontent.com/CreamK/script/master/icon/hrt.png",
+        "https://raw.githubusercontent.com/CreamK/script/master/icon/hrt.png"
+      ],
+      "keys": [
+        "@CreamK_QL.host",
+        "@CreamK_QL.clientId",
+        "@CreamK_QL.secret",
+        "cjwlhck",
+        "jjjck",
+        "oleck",
+        "wtwlhck",
+        "ydwxck"
+      ],
+      "scripts": [
+        {
+          "name": "春茧未来荟变量同步到青龙",
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/cjwlh_ql.js"
+        },
+        {
+          "name": "九九九变量同步到青龙",
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/jjj_ql.js"
+        },
+        {
+          "name": "ole超市变量同步到青龙",
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ole_ql.js"
+        },
+        {
+          "name": "文体未来荟变量同步到青龙",
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/wtwlh_ql.js"
+        },
+        {
+          "name": "一点万象变量同步到青龙",
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ydwx_ql.js"
+        }
+      ],
+      "settings": [
+        {
+          "id": "@CreamK_QL.host",
+          "name": "青龙服务器地址",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": true,
+          "rows": 1,
+          "desc": "填入服务器地址，不包括/，如http://127.0.0.1:5700"
+        },
+        {
+          "id": "@CreamK_QL.clientId",
+          "name": "clientId",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": true,
+          "rows": 1,
+          "desc": "填入青龙应用的clientId"
+        },
+        {
+          "id": "@CreamK_QL.secret",
+          "name": "secret",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": true,
+          "rows": 1,
+          "desc": "填入青龙应用的secret"
+        },
+        {
+          "id": "cjwlhck",
+          "name": "cjwlhck",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": false,
+          "rows": 1,
+          "desc": "春茧未来荟变量"
+        },
+        {
+          "id": "jjjck",
+          "name": "jjjck",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": false,
+          "rows": 1,
+          "desc": "九九九变量"
+        },
+        {
+          "id": "oleck",
+          "name": "oleck",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": false,
+          "rows": 1,
+          "desc": "ole超市变量"
+        },
+        {
+          "id": "wtwlh",
+          "name": "wtwlh",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": false,
+          "rows": 1,
+          "desc": "文体未来荟变量"
+        },
+        {
+          "id": "Ydwx",
+          "name": "Ydwx",
+          "val": "",
+          "type": "textarea",
+          "autoGrow": false,
+          "rows": 1,
+          "desc": "一点万象变量"
+        }
+      ]
+    }
+  ]
+}
