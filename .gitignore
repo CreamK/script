@@ -1,6 +1,5 @@
+Badboy/
 node_modules
 secretScript
-test*
 
 .DS_Store
-.idea
