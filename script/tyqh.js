@@ -17,7 +17,7 @@ if ($request.method=='POST'){
       if(info.indexOf(data)){
         console.log(`🔧数据已存在: ${data}`);
         $.msg($.name, '', '数据已存在')
-        $.done
+        $.done()
       } 
       
       $.setData(info+data, 'tyqh_info');
