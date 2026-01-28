@@ -7,6 +7,14 @@ if ($request.method=='POST'){
       let phone=_body.wm_phone;
       let data=wid+";"+phone;
 
+      const info=$.getData('tyqh_info') || '';
+      if(info.indexOf(data)){
+        console.log(`🔧数据已存在: ${data}`);
+        $.msg($.name, '', '数据已存在')
+        $.done
+      } 
+      
+      $.setData(data, 'tyqh_info');
       console.log(`🔧数据: ${data}`);
       $.msg($.name, '', data, {
         'update-pasteboard': data,
