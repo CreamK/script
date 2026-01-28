@@ -6,6 +6,12 @@ if ($request.method=='POST'){
       let wid=_body.wid;
       let phone=_body.wm_phone;
       let data=wid+";"+phone+"\n";
+      
+      console.log(`🔧数据: ${data}`);
+      $.msg($.name, '', data, {
+        'update-pasteboard': data,
+        openUrl: 'quantumult-x://',
+      });
 
       const info=$.getData('tyqh_info') || '';
       if(info.indexOf(data)){
@@ -14,12 +20,8 @@ if ($request.method=='POST'){
         $.done
       } 
       
-      $.setData(data, 'tyqh_info');
-      console.log(`🔧数据: ${data}`);
-      $.msg($.name, '', data, {
-        'update-pasteboard': data,
-        openUrl: 'quantumult-x://',
-      });
+      $.setData(info+data, 'tyqh_info');
+      
 
 }
 $.done()
