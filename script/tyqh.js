@@ -3,7 +3,9 @@ const $ = new Env('统一茄皇');
 if ($request.method=='POST'){
       let { url, method, headers, body } = $request;
       let _body = JSON.parse(body);
-      let data=_body.wid;
+      let wid=_body.wid;
+      let phone=_body.wm_phone;
+      let data=wid+";"+phone;
 
       console.log(`🔧数据: ${data}`);
       $.msg($.name, '', data, {
