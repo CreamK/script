@@ -5,7 +5,7 @@ if ($request.method=='POST'){
       let _body = JSON.parse(body);
       let wid=_body.wid;
       let phone=_body.wm_phone;
-      let data=wid+";"+phone;
+      let data=wid+";"+phone+"\n";
 
       const info=$.getData('tyqh_info') || '';
       if(info.indexOf(data)){
