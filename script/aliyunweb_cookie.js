@@ -8,14 +8,14 @@ const $ = new Env(moduleName);
  */
 
 let CK = $request.headers['Cookie'];
-console.log(`🎉 🎉 🎉阿里云web cookie: ${CK}`);
-$.msg('🎉 🎉 🎉阿里云web cookie', '', CK, {'update-pasteboard': CK,openUrl: "Telegram://"});  
+console.log(`🎉 阿里云社区 cookie: ${CK}`);
+$.msg('🎉 阿里云社区 cookie', '', CK, {'update-pasteboard': CK,openUrl: "Telegram://"});  
 
 
-let aliyunweb_data = JSON.parse($.getdata('aliyunweb_data'))[0];
+let aliyunweb_data = JSON.parse($.getdata('aliyunWeb_data'))[0];
 aliyunweb_data.token = CK;
 aliyunweb_data=JSON.stringify(aliyunweb_data);
-$.setdata(aliyunweb_data, 'aliyunweb_data');
+$.setdata(aliyunweb_data, 'aliyunWeb_data');
 
 
 //主程序执行入口
