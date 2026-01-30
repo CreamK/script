@@ -1,16 +1,35 @@
 // 为 $ 准备的上下文环境
-const moduleName = "aliyunweb_cookie";
+const moduleName = "aliyunWeb_cookie";
 const $ = new Env(moduleName);
 
-let CK = $request.headers['Cookie'];
-console.log(`🎉 阿里云社区 cookie: ${CK}`);
-$.msg('🎉 阿里云社区 cookie', '', CK, {'update-pasteboard': CK,openUrl: "Telegram://"});  
+
+const url = $request.url
+const cookie = $request.headers['Cookie'];
+const body = $.toObj($response.body);
+
+if (!(body?.data)) throw new Error(`⛔️ 获取Body失败!`);
+let nickname = '';
+let avatar = '';
+if(url.indexOf('getUser') > -1) {
+    nickname = body?.data?.nickname;
+    avatar = body?.data?.avatar
+} else if (url.indexOf('queryUserBaseInfo')) {
+    nickname = body?.data?.userNick;
+}
+
+const aliyunWeb_data=JSON.stringify([{
+    "userId": nickname,
+    "avatar": avatar,
+    "token": cookie,
+    "userName": nickname
+}])
 
 
-let aliyunweb_data = JSON.parse($.getdata('aliyunWeb_data'))[0];
-aliyunweb_data.token = CK;
-aliyunweb_data=JSON.stringify([aliyunweb_data]);
-$.setdata(aliyunweb_data, 'aliyunWeb_data');
+console.log(`🎉 阿里云社区 cookie: ${aliyunWeb_data}`);
+$.msg('🎉 阿里云社区 cookie', '', aliyunWeb_data, {'update-pasteboard': aliyunWeb_data,openUrl: "Telegram://"});  
+
+
+$.setdata(aliyunWeb_data, 'aliyunWeb_data');
 
 
 /**
