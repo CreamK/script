@@ -1,11 +1,6 @@
 // 为 $ 准备的上下文环境
 const moduleName = "aliyunweb_cookie";
 const $ = new Env(moduleName);
-/**
- * ===================================
- * 持久化属性: qlSync 公开的数据结构
- * ===================================
- */
 
 let CK = $request.headers['Cookie'];
 console.log(`🎉 阿里云社区 cookie: ${CK}`);
@@ -17,6 +12,20 @@ aliyunweb_data.token = CK;
 aliyunweb_data=JSON.stringify(aliyunweb_data);
 $.setdata(aliyunweb_data, 'aliyunWeb_data');
 
+
+/**
+ * ===================================
+ * 持久化属性: qlSync 公开的数据结构
+ * ===================================
+ */
+
+$.arguments = getArguments();
+// 存储`青龙域名`
+$.host = $.arguments?.host || "";
+$.clientId = $.arguments?.clientId || "";
+$.secret = $.arguments?.secret || "";
+$.ckName = $.arguments?.ckName || "";
+$.qlCkName="aliyunWeb_data";
 
 //主程序执行入口
 !(async () => {
