@@ -43,7 +43,7 @@ $.arguments = getArguments();
 $.host = $.arguments?.host || "";
 $.clientId = $.arguments?.clientId || "";
 $.secret = $.arguments?.secret || "";
-$.ckName = $.arguments?.ckName || "";
+$.ckName = "aliyunWeb_data";
 $.qlCkName="aliyunWeb_data";
 
 //主程序执行入口
