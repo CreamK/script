@@ -9,7 +9,7 @@ $.msg('🎉 阿里云社区 cookie', '', CK, {'update-pasteboard': CK,openUrl: "
 
 let aliyunweb_data = JSON.parse($.getdata('aliyunWeb_data'))[0];
 aliyunweb_data.token = CK;
-aliyunweb_data=JSON.stringify(aliyunweb_data);
+aliyunweb_data=JSON.stringify([aliyunweb_data]);
 $.setdata(aliyunweb_data, 'aliyunWeb_data');
 
 
