@@ -11,7 +11,7 @@ $.arguments = getArguments();
 $.host = $.arguments?.host || "";
 $.clientId = $.arguments?.clientId || "";
 $.secret = $.arguments?.secret || "";
-$.ckName = $.arguments?.ckName || "";
+$.ckName = "oleck";
 $.qlCkName="oleck";
 
 
