@@ -18,6 +18,8 @@ let schedule = '54 59 1 * * *'; // 定时时间
 let taskName = 'test'; // 定时任务名称
 
 const needBoxJS = $.getData('id77_ql_flag');
+const needSeg = $.getData('creamk_ql_seg_flag');
+
 if (needBoxJS === 'true') {
     creamk_fixed_flag=$.getData('creamk_fixed_flag')
     qlAddrs_fixed =[]
@@ -37,6 +39,11 @@ if (needBoxJS === 'true') {
   fileName = $.getData('id77_ql_fileName'); // 上传脚本名称
   schedule = $.getData('id77_ql_schedule'); // 定时时间
   taskName = $.getData('id77_ql_taskName'); // 定时任务名称
+
+  if(needSeg) {
+    seg_num =  $.getData('creamk_ql_seg_num');
+    alloc_ql_per_seg =  $.getData('creamk_ql_alloc_ql_per_seg');
+  }
 
   if (qlAddrs_fixed.length) {
     qlAddrs = [...qlAddrs_fixed].filter((item) => !!item);
@@ -164,25 +171,100 @@ class Qinglong {
   .finally(() => $.done());
 
 async function task() {
-  for (const qlAddr of qlAddrs) {
-    console.log(`[*] 正在操作 /${qlAddr}/ = = = = >`);
-    const ql = new Qinglong(qlAddr, clientId, clientSecret);
-    try {
-      await ql.init();
-      const fileContent = await $.readFile();
-      if (!fileContent) {
-        console.log(
-          `[*] 读取文件失败，请检查是否存在 ${fileName} 该文件，再执行此脚本！`
-        );
+  let fileContent = await $.readFile();
+  if (!fileContent) {
+    console.log(
+      `[*] 读取文件失败，请检查是否存在 ${fileName} 该文件，再执行此脚本！`
+    );
+    return;
+  }
+  if(needSeg) {
+    if(seg_num && alloc_ql_per_seg) {
+      if((seg_num - 1) * alloc_ql_per_seg > qlAddrs.length) {
+        console(`分割数量或分配ip数设置不规范`);
+        return
+      }
+    } else {
+      console.log(
+        `分割数量或分配ip数量未设置`
+      );
+      return;
+    }
+
+    // 正则表达式提取reqArr数组内容
+    const regex = /let reqArr = \[(.*?)\];/s;  // 匹配 let reqArr = [ ... ]; 中的内容
+    const match = fileContent.match(regex);
+
+    if (match) {
+      
+      // 使用 split 方法将每个元素分割并处理去除引号
+      // const reqArr = reqArrStr.split(',').map(item => item.trim().replace(/['"]+/g, ''));
+      let reqArr; 
+
+      try {
+        reqArr = eval('[' + match[1] + ']');
+      } catch(error){
+        console.log('解析reqArr内容出错');
         return;
       }
-      await ql.upload(fileContent);
-      await ql.setCron(taskName, `task ${fileName} now`, schedule);
-    } catch (error) {
-      console.log(error);
+
+      const splitArr = splitArrayIntoNParts(reqArr, seg_num);
+      const splitQl = splitArrayIntoNParts(qlAddrs, seg_num);
+
+      for(let index in splitArr) {
+        const updatedReqArr = `let reqArr = [\n${splitArr[index].map(item => `${JSON.stringify(item)}`).join(',\n')}\n];`;
+        const updatedData = fileContent.replace(regex, updatedReqArr);
+        for(const qlAddr of splitQl[index]) {
+          console.log(`[*] 正在操作 /${qlAddr}/ = = = = >`);
+          const ql = new Qinglong(qlAddr, clientId, clientSecret);
+          try {
+            await ql.init();
+            
+            await ql.upload(updatedData);
+            await ql.setCron(taskName, `task ${fileName} now`, schedule);
+          } catch (error) {
+            console.log(error);
+          }
+          console.log(`[*] 操作结束 /${qlAddr}  第${Number(index) + 1}组数据/ < = = = =\n`);
+        }
+      }
     }
-    console.log(`[*] 操作结束 /${qlAddr}/ < = = = =\n`);
+  } else {
+    for (const qlAddr of qlAddrs) {
+      console.log(`[*] 正在操作 /${qlAddr}/ = = = = >`);
+      const ql = new Qinglong(qlAddr, clientId, clientSecret);
+      try {
+        await ql.init();
+        
+        await ql.upload(fileContent);
+        await ql.setCron(taskName, `task ${fileName} now`, schedule);
+      } catch (error) {
+        console.log(error);
+      }
+      console.log(`[*] 操作结束 /${qlAddr}/ < = = = =\n`);
+    }
   }
+  
+}
+
+function splitArrayIntoNParts(arr, n) {
+  const result = [];
+  const length = arr.length;
+  
+  // 计算基本大小和余数
+  const baseSize = Math.floor(length / n);
+  const remainder = length % n;
+  
+  let start = 0;
+  
+  for (let i = 0; i < n; i++) {
+    // 前remainder份每份多一个元素
+    const end = start + baseSize + (i < remainder ? 1 : 0);
+    result.push(arr.slice(start, end));
+    start = end;
+  }
+  
+  return result;
 }
 
 // https://github.com/chavyleung/scripts/blob/master/Env.js

@@ -107,6 +107,25 @@
           "val": "",
           "type": "text",
           "placeholder": "QX取iCloud的Scripts文件夹文件，NodeJS取运行同级路径下的文件"
+        },
+        {
+          "id": "creamk_ql_seg_flag",
+          "name": "启用",
+          "val": false,
+          "type": "boolean",
+          "desc": "将数据平均切分"
+        },
+        {
+          "id": "creamk_ql_seg_num",
+          "name": "切分数量",
+          "val": "1",
+          "type": "text"
+        },
+        {
+          "id": "creamk_ql_alloc_ql_per_seg",
+          "name": "每份分配ip数量",
+          "val": "1",
+          "type": "text"
         }
       ],
       "author": "@creamk",
