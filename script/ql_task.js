@@ -178,7 +178,7 @@ async function task() {
     );
     return;
   }
-  if(needSeg==="false") {
+  if(needSeg==="true") {
     if(seg_num && alloc_ql_per_seg) {
       if((seg_num - 1) * alloc_ql_per_seg > qlAddrs.length) {
         console(`分割数量或分配ip数设置不规范`);
