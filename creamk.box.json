@@ -431,8 +431,8 @@
           "desc": "ole超市变量"
         },
         {
-          "id": "wtwlh",
-          "name": "wtwlh",
+          "id": "wtwlhck",
+          "name": "wtwlhck",
           "val": "",
           "type": "textarea",
           "autoGrow": false,
