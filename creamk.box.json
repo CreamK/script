@@ -132,27 +132,33 @@
       "scripts": [
         {
           "name": "迁移文件数据",
-          "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/migrationFileData.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/migrationFileData.js",
+          "iCloudPath": "migrationFileData.js"
         },
         {
           "name": "本机数据写入任务📁",
-          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/dataToTaskFile.js"
+          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/dataToTaskFile.js",
+          "iCloudPath": "dataToTaskFile.js"
         },
         {
           "name": "上传文件设置任务🐉",
-          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_task.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_task.js",
+          "iCloudPath": "ql_task.js"
         },
         {
           "name": "删除任务🐉",
-          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_delTask.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/ql_delTask.js",
+          "iCloudPath": "ql_delTask.js"
         },
         {
           "name": "清理任务文件的数据📁",
-          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/clearTaskFileData.js"
+          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/clearTaskFileData.js",
+          "iCloudPath": "clearTaskFileData.js"
         },
         {
           "name": "清除本机数据🔴",
-          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/delMitmData.js"
+          "script": "https://raw.githubusercontent.com/id77/QuantumultX/master/task/delMitmData.js",
+          "iCloudPath": "delMitmData.js"
         }
       ],
       "descs_html": [
@@ -283,7 +289,8 @@
       "scripts": [
         {
           "name": "同步变量到青龙(填写ckName，保存，执行)",
-          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/boxjs_to_ql.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/boxjs_to_ql.js",
+          "iCloudPath": "boxjs_to_ql.js"
         }
       ],
       "settings": [
@@ -356,23 +363,28 @@
       "scripts": [
         {
           "name": "春茧未来荟变量同步到青龙",
-          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/cjwlh_ql.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/cjwlh_ql.js",
+          "iCloudPath": "cjwlh_ql.js"
         },
         {
           "name": "九九九变量同步到青龙",
-          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/jjj_ql.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/jjj_ql.js",
+          "iCloudPath": "jjj_ql.js"
         },
         {
           "name": "ole超市变量同步到青龙",
-          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ole_ql.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ole_ql.js",
+          "iCloudPath": "ole_ql.js"
         },
         {
           "name": "文体未来荟变量同步到青龙",
-          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/wtwlh_ql.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/wtwlh_ql.js",
+          "iCloudPath": "wtwlh_ql.js"
         },
         {
           "name": "一点万象变量同步到青龙",
-          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ydwx_ql.js"
+          "script": "https://raw.githubusercontent.com/CreamK/script/master/script/hrt/ydwx_ql.js",
+          "iCloudPath": "ydwx_ql.js"
         }
       ],
       "settings": [
