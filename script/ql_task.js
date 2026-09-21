@@ -9,7 +9,7 @@ SELECT * FROM apps WHERE id = 2;
  */
 const $ = new Env('上传文件设置任务🐉');
 
-let qlAddrs = ['192.168.1.1']; // 青龙面板地址
+let qlAddrs = []; // 青龙面板地址，不设置默认服务器
 let port = '5700'; // 青龙端口
 let clientId = '';
 let clientSecret = '';
