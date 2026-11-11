@@ -102,7 +102,7 @@ class Qinglong {
   }
 
   async upload(fileContent) {
-    await this.request('Qinglong script upload', 'PUT', '/scripts', {
+    await this.request('Qinglong script upload', 'POST', '/scripts', {
       filename: fileName,
       content: fileContent,
       path: '',
