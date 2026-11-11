@@ -10,6 +10,7 @@ SELECT * FROM apps WHERE id = 2;
 const $ = new Env('上传文件设置任务🐉');
 
 let qlAddrs = ['192.168.1.1']; // 青龙面板地址
+let baseUrl = ''; // Optional reverse-proxy path, e.g. /qinglong
 let port = '5700'; // 青龙端口
 let clientId = '';
 let clientSecret = '';
@@ -33,6 +34,7 @@ if (needBoxJS === 'true') {
         qlAddrs_tmp = $.getData('creamk_ql_addrs_tmp')?.split('@') ?? []; // 青龙面板地址
     }
 
+  baseUrl = $.getData('id77_ql_baseUrl') ?? baseUrl;
   port = $.getData('id77_ql_port'); // 青龙端口
   clientId = $.getData('id77_ql_clientId');
   clientSecret = $.getData('id77_ql_clientSecret');
@@ -55,111 +57,71 @@ if (needBoxJS === 'true') {
 
 class Qinglong {
   constructor(qlAddr, clientId, clientSecret) {
-    this.qlAddr = /https?:\/\//.test(qlAddr) ? qlAddr : `http://${qlAddr}`;
+    const address = qlAddr.trim().replace(/\/+$/, '');
+    const [, origin, addressPath = ''] = /^(https?:\/\/[^/]+)(\/.*)?$/i.exec(
+      /^https?:\/\//i.test(address) ? address : 'http://' + address
+    );
+    const prefix = baseUrl.trim().replace(/^\/+|\/+$/g, '');
+    this.apiUrl = origin + (/:\d+$/.test(origin) || !port ? '' : ':' + port)
+      + (addressPath || (prefix ? '/' + prefix : '')) + '/open';
     this.clientId = clientId;
     this.clientSecret = clientSecret;
-    this.token = '';
     this.qlHeaders = {};
-    // this.init();
   }
 
-  init() {
+  request(operation, method, path, body) {
+    const options = { url: this.apiUrl + path, timeout: 2000 };
+    if (body !== undefined) {
+      options.method = method;
+      options.headers = { ...this.qlHeaders };
+      options.body = JSON.stringify(body);
+    }
+
     return new Promise((resolve, reject) => {
-      let hasPort = /:\d+$/.test(this.qlAddr.replace(/\/$/, '')); // 检查末尾是否含有:数字（即端口）
-      const url = `${this.qlAddr}${hasPort ? '' : ':' + port}/open/auth/token?client_id=${this.clientId}&client_secret=${this.clientSecret}`;
-
-      $.get({ url, timeout: 2000 }, (err, resp, data) => {
-        if (resp?.statusCode === 200) {
-          const ret = JSON.parse(resp.body);
-          if (ret.code === 200) {
-            this.token = ret.data.token;
-            this.qlHeaders = {
-              'Content-Type': 'application/json;charset=UTF-8',
-              Authorization: `Bearer ${this.token}`,
-            };
-            console.log(`[*] 青龙登陆成功,token=${this.token}`);
-          } else {
-            console.log(`[*] 青龙登陆失败,${ret?.message}`);
-          }
-        } else {
-          console.log(`[*] 青龙登陆失败,状态码: ${resp?.statusCode}`);
-          console.log($.toStr(data));
+      const send = method === 'GET' ? $.get : $.post;
+      send.call($, options, (err, resp) => {
+        if (err || resp?.statusCode !== 200) {
+          reject(new Error(operation + ' failed (HTTP ' + (resp?.statusCode ?? 'unavailable') + ')'));
+          return;
         }
-
-        if (err) {
-          console.log(`[*] 青龙登陆失败,错误:${$.toStr(err)}`);
+        const result = $.toObj(resp.body);
+        if (result?.code !== 200) {
+          reject(new Error(operation + ' failed: ' + (result?.message ?? 'invalid response')));
+          return;
         }
-        resolve(data);
+        resolve(result.data);
       });
     });
   }
 
-  upload(fileContent) {
-    return new Promise((resolve, reject) => {
-        let hasPort = /:\d+$/.test(this.qlAddr.replace(/\/$/, '')); // 检查末尾是否含有:数字（即端口）
-      const url = `${this.qlAddr}${hasPort ? '' : ':' + port}/open/scripts`;
-      const body = JSON.stringify({
-        filename: fileName,
-        content: fileContent,
-        path: '/',
-      });
-
-      $.post(
-        { url, method: 'PUT', headers: this.qlHeaders, body, timeout: 2000 },
-        (err, resp, data) => {
-          if (resp?.statusCode === 200) {
-            const ret = JSON.parse(resp.body);
-            if (ret.code === 200) {
-              console.log(`[*] 上传成功`);
-            } else {
-              console.log(`[*] 上传失败,${ret?.message}`);
-            }
-          } else {
-            console.log(`[*] 上传失败,状态码: ${resp?.statusCode}`);
-            console.log($.toStr(data));
-          }
-
-          if (err) {
-            console.log(`[*] 上传失败,错误:${$.toStr(err)}`);
-          }
-          resolve(data);
-        }
-      );
-    });
+  async init() {
+    const query = '?client_id=' + encodeURIComponent(this.clientId)
+      + '&client_secret=' + encodeURIComponent(this.clientSecret);
+    const data = await this.request('Qinglong authentication', 'GET', '/auth/token' + query);
+    if (!data?.token) throw new Error('Qinglong authentication returned no token');
+    this.qlHeaders = {
+      'Content-Type': 'application/json;charset=UTF-8',
+      Authorization: 'Bearer ' + data.token,
+    };
   }
 
-  setCron(name, command, schedule) {
-    return new Promise((resolve, reject) => {
-      let hasPort = /:\d+$/.test(this.qlAddr.replace(/\/$/, '')); // 检查末尾是否含有:数字（即端口）
-      const url = `${this.qlAddr}${hasPort ? '' : ':' + port}/open/crons`;
-      const body = JSON.stringify({
-        name: name,
-        command: command,
-        schedule: schedule,
-      });
-
-      $.post(
-        { url, headers: this.qlHeaders, body, timeout: 2000 },
-        (err, resp, data) => {
-          if (resp?.statusCode === 200) {
-            const ret = JSON.parse(resp.body);
-            if (ret.code === 200) {
-              console.log(`[*] cron 设置成功`);
-            } else {
-              console.log(`[*] cron 设置失败,${ret?.message}`);
-            }
-          } else {
-            console.log(`[*] cron 设置失败,状态码:${resp?.statusCode}`);
-            console.log(`请检查是否已存在同时间同名字的任务！`);
-          }
-
-          if (err) {
-            console.log(`[*] cron 设置失败,错误:${$.toStr(err)}}`);
-          }
-          resolve(data);
-        }
-      );
+  async upload(fileContent) {
+    await this.request('Qinglong script upload', 'PUT', '/scripts', {
+      filename: fileName,
+      content: fileContent,
+      path: '',
     });
+    console.log('[*] Qinglong script uploaded');
+  }
+
+  async setCron(name, command, schedule) {
+    await this.request('Qinglong cron creation', 'POST', '/crons', {
+      name,
+      command,
+      schedule,
+      allow_multiple_instances: 1,
+    });
+    console.log('[*] Qinglong cron created');
   }
 }
 
