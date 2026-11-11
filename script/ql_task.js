@@ -77,7 +77,9 @@ class Qinglong {
       const send = method === 'GET' ? $.get : $.post;
       send.call($, options, (err, resp) => {
         if (err || resp?.statusCode !== 200) {
-          reject(new Error(operation + ' failed (HTTP ' + (resp?.statusCode ?? 'unavailable') + ')'));
+          const error = new Error(operation + ' failed (HTTP ' + (resp?.statusCode ?? 'unavailable') + ')');
+          error.statusCode = resp?.statusCode;
+          reject(error);
           return;
         }
         const result = $.toObj(resp.body);
@@ -107,17 +109,23 @@ class Qinglong {
       content: fileContent,
       path: '',
     });
-    console.log('[*] Qinglong script uploaded');
+    console.log('[*] 上传成功');
   }
 
   async setCron(name, command, schedule) {
-    await this.request('Qinglong cron creation', 'POST', '/crons', {
-      name,
-      command,
-      schedule,
-      allow_multiple_instances: 1,
-    });
-    console.log('[*] Qinglong cron created');
+    try {
+      await this.request('Qinglong cron creation', 'POST', '/crons', {
+        name,
+        command,
+        schedule,
+        allow_multiple_instances: 1,
+      });
+    } catch (error) {
+      if (error.statusCode !== 409) throw error;
+      console.log('[*] 定时任务已存在，跳过创建');
+      return;
+    }
+    console.log('[*] 设置任务成功');
   }
 }
 
