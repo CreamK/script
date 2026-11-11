@@ -7,7 +7,7 @@
   "apps": [
     {
       "id": "QX_FILE",
-      "name": "青龙上传文件",
+      "name": "青龙同步",
       "keys": [
         "creamk_fileName",
         "creamk_src_fileName",
@@ -167,109 +167,6 @@
       "icons": [
         "https://qn.whyour.cn/logo.png",
         "https://qn.whyour.cn/logo.png"
-      ]
-    },
-    {
-      "id": "xmSports",
-      "name": "小米运动",
-      "keys": [
-        "xmAccountNumbers",
-        "xmCurrentAccount",
-        "xmMinStep",
-        "xmMaxStep",
-        "xmSportsToken",
-        "xmSportsToken2",
-        "xmSportsToken3",
-        "xmSportsToken4",
-        "xmSportsToken5"
-      ],
-      "settings": [
-        {
-          "id": "xmAccountNumbers",
-          "name": "账户数量",
-          "val": "",
-          "type": "number"
-        },
-        {
-          "id": "xmCurrentAccount",
-          "name": "当前账户",
-          "val": "",
-          "type": "number"
-        },
-        {
-          "id": "xmMinStep",
-          "name": "最小步数",
-          "val": "",
-          "type": "number"
-        },
-        {
-          "id": "xmMaxStep",
-          "name": "最大步数",
-          "val": "",
-          "type": "number"
-        }
-      ],
-      "script": "https://raw.githubusercontent.com/CreamK/script/script/xmyd.js",
-      "author": "@CreamK",
-      "repo": "https://raw.githubusercontent.com/CreamK/script/script/xmyd.js",
-      "icons": [
-        "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png",
-        "https://raw.githubusercontent.com/CreamK/script/master/icon/xmSports.png"
-      ]
-    },
-    {
-      "id": "updateXyCookie",
-      "name": "更新闲鱼Cookie",
-      "keys": [
-        "autoReply_url",
-        "autoReply_account_id",
-        "autoReply_xianyu_cookie",
-        "autoReply_username",
-        "autoReply_password"
-      ],
-      "settings": [
-        {
-          "id": "autoReply_url",
-          "name": "自动回复网页地址",
-          "val": "",
-          "type": "text"
-        },
-        {
-          "id": "autoReply_account_id",
-          "name": "闲鱼账户ID",
-          "val": "",
-          "type": "text"
-        },
-        {
-          "id": "autoReply_xianyu_cookie",
-          "name": "闲鱼cookie",
-          "val": "",
-          "type": "text"
-        },
-        {
-          "id": "autoReply_username",
-          "name": "网页账户",
-          "val": "",
-          "type": "text"
-        },
-        {
-          "id": "autoReply_password",
-          "name": "网页密码",
-          "val": "",
-          "type": "text"
-        }
-      ],
-      "scripts": [
-        {
-          "name": "自动更新闲鱼cookie",
-          "script": "https://raw.githubusercontent.com/CreamK/script/refs/heads/master/script/updateXyCookie.js"
-        }
-      ],
-      "author": "@CreamK",
-      "repo": "https://github.com/CreamK/Scripts",
-      "icons": [
-        "https://raw.githubusercontent.com/CreamK/script/master/icon/xianyu.jpg",
-        "https://raw.githubusercontent.com/CreamK/script/master/icon/xianyu.jpg"
       ]
     },
     {

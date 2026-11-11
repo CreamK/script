@@ -9,7 +9,7 @@ SELECT * FROM apps WHERE id = 2;
  */
 const $ = new Env('删除任务🐉');
 
-let qlAddrs = ['192.168.1.1']; // 青龙面板地址
+let qlAddrs = []; // 青龙面板地址，不设置默认服务器
 let port = '5700'; // 青龙端口
 let clientId = '';
 let clientSecret = '';
@@ -19,17 +19,15 @@ let taskName = 'test'; // 定时任务名称
 
 const needBoxJS = $.getData('id77_ql_flag');
 if (needBoxJS === 'true') {
-    creamk_fixed_flag=$.getData('creamk_fixed_flag')
-    qlAddrs_fixed =[]
-    if (creamk_fixed_flag==='true'){
-        qlAddrs_fixed = $.getData('creamk_ql_addrs_fixed')?.split('@') ?? []; // 青龙面板地址
-    }
-   
-    creamk_tmp_flag=$.getData('creamk_tmp_flag')
-    qlAddrs_tmp =[]
-    if (creamk_tmp_flag==='true'){
-        qlAddrs_tmp = $.getData('creamk_ql_addrs_tmp')?.split('@') ?? []; // 青龙面板地址
-    }
+  const creamk_fixed_flag = $.getData('creamk_fixed_flag');
+  const qlAddrs_fixed = creamk_fixed_flag === 'true'
+    ? $.getData('creamk_ql_addrs_fixed')?.split('@') ?? []
+    : [];
+
+  const creamk_tmp_flag = $.getData('creamk_tmp_flag');
+  const qlAddrs_tmp = creamk_tmp_flag === 'true'
+    ? $.getData('creamk_ql_addrs_tmp')?.split('@') ?? []
+    : [];
 
   port = $.getData('id77_ql_port'); // 青龙端口
   clientId = $.getData('id77_ql_clientId');
@@ -38,12 +36,10 @@ if (needBoxJS === 'true') {
   schedule = $.getData('id77_ql_schedule'); // 定时时间
   taskName = $.getData('id77_ql_taskName'); // 定时任务名称
 
-  if (qlAddrs_fixed.length) {
-    qlAddrs = [...qlAddrs_fixed].filter((item) => !!item);
-  }
-  if (qlAddrs_tmp.length) {
-    qlAddrs = [...qlAddrs, ...qlAddrs_tmp].filter((item) => !!item);
-  }
+  // 按启用的地址列表重新构建，固定地址为空时也可以仅使用临时地址。
+  qlAddrs = [...qlAddrs_fixed, ...qlAddrs_tmp]
+    .map((item) => item.trim())
+    .filter((item) => !!item);
 }
 
 class Qinglong {
@@ -180,6 +176,11 @@ class Qinglong {
   .finally(() => $.done());
 
 async function task() {
+  if (!qlAddrs.length) {
+    console.log('[*] 未配置有效的青龙面板地址，请检查固定地址或临时地址设置！');
+    return;
+  }
+
   for (const qlAddr of qlAddrs) {
     console.log(`[*] 正在操作 /${qlAddr}/ = = = = >`);
     const ql = new Qinglong(qlAddr, clientId, clientSecret);
