@@ -105,7 +105,7 @@ class Qinglong {
     await this.request('Qinglong script upload', 'PUT', '/scripts', {
       filename: fileName,
       content: fileContent,
-      path: '',
+      path: '/',
     });
     console.log('[*] Qinglong script uploaded');
   }
