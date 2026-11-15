@@ -34,47 +34,46 @@ $.qlCkName="wtwlhck";
  * ===================================
  */
 async function refreshQingLong() {
-    try {
-        if (!($.host && $.clientId && $.secret && $.ckName)) throw new Error("请先在boxjs填写相关配置");
-        let o = await loadQingLong({
-            host: $.host,
-            clientId: $.clientId,
-            secret: $.secret
-        });
-        await o.checkLogin();
-        await o.getEnvs();
-        let [i] = o.selectEnvByName($.qlCkName) ?? [];
-        try {
-            //读取boxjs中的变量
-            $.ckVal = $.getdata($.ckName);
-            $.info(`获取变量:${$.ckName}`);
-            $.info(`同步内容:${$.ckVal}`);
-            if (!$.ckVal) throw new Error(`${$.ckName}所对应的值不存在，同步失败`);
-            //如果存在则更新数据，否则添加
-            $.info(`开始尝试同步到青龙...`);
-            $.info(`同步前:${i?.value}`);
-            if (i) {
-                await o.updateEnv({
-                    value: `${$.ckVal}`,
-                    name: $.qlCkName,
-                    remarks: `${i?.remarks}`,
-                    id: `${i?.id}`
-                });
-            } else {
-                await o.addEnv([{ value: `${$.ckVal}`, name: $.qlCkName, remarks: '' }])
-            }
-        } catch (e) {
+    if (!($.host && $.clientId && $.secret)) throw new Error("请先在 BoxJS 填写青龙配置");
+    const value = $.getdata($.ckName);
+    if (!value) throw new Error(`${$.ckName} 对应的值不存在，同步失败`);
 
-        } finally {
-            await o.getEnvs();
-            let [q] = o.selectEnvByName($.qlCkName) ?? [];
-            $.info(`同步后:${q?.value}`);
-            i?.value != q?.value ? $.info(`同步变量:成功！`) : $.info(`同步变量:未发生变化！`);
-            $.msg($.name, "", "✅ The environment variable was uploaded successfully.");
-        }
-    } catch (e) {
-        throw e;
+    const host = $.host.trim().replace(/\/+$/, "");
+    const api = (/^https?:\/\//i.test(host) ? host : "http://" + host) + "/open";
+    const query = "?client_id=" + encodeURIComponent($.clientId)
+        + "&client_secret=" + encodeURIComponent($.secret);
+    const auth = await requestQingLong(api + "/auth/token" + query, "GET");
+    if (!auth?.token) throw new Error("青龙鉴权响应缺少 Token");
+
+    const envs = await requestQingLong(api + "/envs", "GET", auth.token);
+    if (!Array.isArray(envs)) throw new Error("青龙环境变量列表格式错误");
+    const existing = envs.find(env => env.name === $.qlCkName);
+    const payload = { name: $.qlCkName, value: String(value), remarks: existing?.remarks ?? "" };
+    if (existing) {
+        if (!Number.isInteger(existing.id)) throw new Error("青龙环境变量 ID 无效");
+        await requestQingLong(api + "/envs", "PUT", auth.token, { ...payload, id: existing.id });
+    } else {
+        await requestQingLong(api + "/envs", "POST", auth.token, [payload]);
     }
+    $.info("同步变量成功");
+    $.msg($.name, "", "✅ Cookie 已同步到青龙");
+}
+
+async function requestQingLong(url, method, token, payload) {
+    const options = { url, headers: {} };
+    if (token) options.headers.Authorization = "Bearer " + token;
+    if (payload !== undefined) {
+        options.method = method;
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(payload);
+    }
+    const response = await (method === "GET" ? $.http.get(options) : $.http.post(options))
+        .catch(() => { throw new Error("青龙请求失败，请检查面板地址和网络连接"); });
+    const result = $.toObj(response.body);
+    if (response.statusCode !== 200 || result?.code !== 200) {
+        throw new Error(`青龙请求失败（${method}，HTTP ${response.statusCode}，业务代码 ${result?.code ?? "未知"}）`);
+    }
+    return result.data;
 }
 /**
  * ===================================
@@ -91,35 +90,13 @@ function getArguments() {
     } else {
         arg = {};
     }
-    $.info(`传入的 $argument: ${$.toStr(arg)} `);
 
     arg = { ...arg, ...$.getjson(`CreamK_QL`) };
-
-    $.info(`从持久化存储读取参数后: ${$.toStr(arg)} `);
 
     return arg;
 }
 
-//加载青龙模块
-async function loadQingLong(QL) {
-    let code = $.getdata("qinglong_code") || "";
-    if (code && Object.keys(code).length) {
-        $.info("[QingLong] 模块加载成功,请继续");
-        eval(code);
-        return new QingLong(QL.host, QL.clientId, QL.secret);
-    } else {
-        $.info("[QingLong] 开始安装模块...");
-        return new Promise(async resolve => {
-            $.getScript("https://fastly.jsdelivr.net/gh/Sliverkiss/QuantumultX@main/Utils/QingLong.min.js").then(fn => {
-                $.setdata(fn, "qinglong_code");
-                eval(fn);
-                const ql = new QingLong(QL.host, QL.clientId, QL.secret);
-                $.info("[QingLong] 模块加载成功,请继续");
-                resolve(ql);
-            });
-        });
-    }
-}
+
 
 // prettier-ignore
 //From xream's ObjectKeys2LowerCase
